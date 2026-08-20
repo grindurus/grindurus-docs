@@ -2,13 +2,13 @@
 
 Prices move every second; markets are liquid. That is sufficient.
 
-## The problem
+## The opportunity
 
 Assets' **realized volatility** fluctuates every second.
 
-Day by day, spot can move **±0–8%** on majors and **±10%+** on alts — often without a clean trend. That is the raw material.
+Day by day, spot can move **±0–8%** on majors and **±10%+** on alts — often without a clean trend.
 
-Most on-chain yield is a side effect of something else — lending your balance, LP inventory, or solvency. You are paid to take a different risk.
+Most on-chain yield is a side effect of something else — lending your balance, LP inventory, or solvency.
 
 ## The solution
 
@@ -48,15 +48,11 @@ Deposit, get **GRAI**: a dollar book-priced share of the fund while capital grin
 3. **Intents & composable terminals.** Markets are moving from open orders to signed intents and solvers; liquidity is split across chains, venues, and networks. What scales is not another single-venue bot but a layer that executes both sides wherever liquidity appears — CEX, AMM, or intent network — with the same math underneath.
 4. **Agent economy.** On-chain agents will settle, rebalance, and trade at scale — but not every wallet can run heavy models. The stack needs market taking from simple rules and math with O(1), not from massive compute per tick on tensor processing units.
 
-
-
 ## We are not
 
 - A CEX/DEX or a copy-trading feed.
 - A prediction market or a direction bet.
 - A live-redeem stablecoin-style vault.
-
-
 
 ## We are
 
