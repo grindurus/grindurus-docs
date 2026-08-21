@@ -8,7 +8,7 @@ GrindURUS runs a dual-sided strategy on crypto pairs: buy low / sell high and se
 
 - [Quickstart](general/quickstart.md) — deposit GRAI in the app
 - [Manifesto](general/manifesto.md) — why GrindURUS exists
-- [Overview](general/overview/introduction.md) — architecture, tokenomics, GRAI / GRS roles
+- [Overview](general/overview.md) — architecture, tokenomics, GRAI / GRS roles
 - [GRAI](grai/overview.md) — deposit, lock, dividends, liquidation
 - [GRS](grs/overview.md) — 1B protocol token, cap table, sales, bridge
 - [Grinders](grinders/overview.md) — custodian NFTs and where capital trades

@@ -5,8 +5,9 @@ structure:
   summary: SUMMARY.md
 
 redirects:
-  general/overview/architecture: general/overview/introduction.md
-  general/overview/tokenomics: general/overview/introduction.md
+  general/overview/introduction: general/overview.md
+  general/overview/architecture: general/overview.md
+  general/overview/tokenomics: general/overview.md
   protocol/strategy: protocol/overview.md
   protocol/infrastructure: protocol/overview.md
   protocol/trading-infrastructure: protocol/overview.md

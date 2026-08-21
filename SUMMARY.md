@@ -6,7 +6,7 @@
 ## General
 
 * [Manifesto](general/manifesto.md)
-* [Overview](general/overview/introduction.md)
+* [Overview](general/overview.md)
 
 ## Protocol
 

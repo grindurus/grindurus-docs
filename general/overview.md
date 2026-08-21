@@ -1,10 +1,10 @@
 # Overview
 
-GrindURUS is a **volatility harvesting** stack with an on-chain fund layer. Detail lives under [GRAI](../../grai/overview.md), [GRS](../../grs/overview.md), and [Treasury / affiliates](../../grai/treasury-and-affiliates.md).
+GrindURUS is **extended accounting** with an on-chain fund layer (**GRAI**). See [Protocol](../protocol/overview.md), [GRAI](../grai/overview.md), [GRS](../grs/overview.md), [Treasury](../grai/treasury-and-affiliates.md).
 
 ## Two layers
 
-**Off-chain (protocol repo)** — trading bots called **Grinders**. Each Grinder runs **GrindURUS** in two modes on one pair:
+**Off-chain (protocol repo)** — trading bots called **Grinders**. Each Grinder runs **GrindURUS** strategy in two modes on one pair:
 
 - **DIRECT** — buy low, sell high → grow the quote asset (e.g. USDC)
 - **INVERSE** — sell high, buy low → grow the base asset (e.g. ETH)
@@ -98,7 +98,7 @@ The same logic is implemented on **EVM** (Solidity, UUPS where noted) and **Sola
 
 ### Repositories
 
-See [Repositories](../../developers/repositories.md) for the full map of `grindurus-protocol`, `grindurus-evm`, `grindurus-solana`, `grindurus-app`, and related trees.
+See [Repositories](../developers/repositories.md) for the full map of `grindurus-protocol`, `grindurus-evm`, `grindurus-solana`, `grindurus-app`, and related trees.
 
 ## Tokenomics
 
@@ -183,7 +183,7 @@ holder → lock() → locker (unvoted) → vote() → voter ← bribe() ← brib
 - **20%** each: Investments, Affiliates, Team, Ecosystem, Foundation.
 - Cap-table `**grant**` is `owner` on home; spokes revert `NotHome`.
 
-Full bucket table: [GRS cap table](../../grs/cap-table.md).
+Full bucket table: [GRS cap table](../grs/cap-table.md).
 
 ### What GRS is not
 

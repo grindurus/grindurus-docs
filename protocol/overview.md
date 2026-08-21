@@ -1,6 +1,8 @@
 # Protocol overview
 
-This page is the **tip of the iceberg**: enough to see what GrindURUS *is* and how the off-chain stack is wired. The deep layer — full positional algebra, ledger invariants, and GrindURUS operation set — stays with **URUS** and will be published after the PhD work lands in 2027. What follows is the visible surface.
+## Core
+
+This section is the **tip of the iceberg**: enough to see what GrindURUS *is* and how the off-chain stack is wired. The deep layer — full positional algebra, ledger invariants, and GrindURUS operation set — stays with **URUS** and will be published after the PhD work lands in 2027.
 
 The core is **extended asset accounting through a ledger**.
 
@@ -106,4 +108,4 @@ The public app exposes a paid backtest calculator at [app.grindurus.xyz/backtest
 | `grindurus-ecosystem/grindurus-klines-service` | Candle data |
 | `grindurus-ecosystem/grindurus-backtest-service` | Backtest API |
 
-On-chain fund and token detail: [General overview](../general/overview/introduction.md) · [GRAI](../grai/overview.md) · [Grinders](../grinders/overview.md).
+On-chain fund and token detail: [General overview](../general/overview.md) · [GRAI](../grai/overview.md) · [Grinders](../grinders/overview.md).
