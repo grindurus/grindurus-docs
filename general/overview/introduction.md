@@ -69,7 +69,7 @@ Depositor
     ├─ dividendCut (~50%) ──► unvoted lockers (claim)
     └─ treasuryCut (~50%) ──► Treasury
               ├─ revenueShare (5% of yield) ──► affiliates on claim
-              └─ remainder ──► beneficiar (target: GRS stakers)
+              └─ remainder ──► beneficiar (net profit)
 ```
 
 
@@ -119,7 +119,7 @@ If nobody qualifies for dividends (`totalLocked == totalVoted`), the dividend cu
 
 ### Revenue flow
 
-Per **100** of reported yield (illustrative; defaults above). Affiliate L1/L2 is **80/20** of the 5% revenue-share pool. Buybacks are an intended use of the beneficiar cut (~30 of gross), not a separate on-chain cut.
+Per **100** of reported yield (illustrative; defaults above). Affiliate L1/L2 is **80/20** of the 5% revenue-share pool. The beneficiar remainder (~45 of gross) is **net profit**; buybacks are an intended use of that cut (~30 of gross), not a separate on-chain cut.
 
 ```mermaid
 ---
@@ -133,11 +133,11 @@ sankey-beta
 Yield (distribute),Unvoted lockers,50
 Yield (distribute),Treasury,50
 Treasury,Affiliates,5
-Treasury,Beneficiar,45
+Treasury,Beneficiar (net profit),45
 Affiliates,L1 referrer,4
 Affiliates,L2 referrer,1
-Beneficiar,GRS market buyback,30
-Beneficiar,FeeVault / xGRS (target),15
+Beneficiar (net profit),GRS market buyback,30
+Beneficiar (net profit),Net profit retained,15
 ```
 
 
@@ -152,10 +152,10 @@ From the treasury cut:
 | Slice             | Default                         | When                                          |
 | ----------------- | ------------------------------- | --------------------------------------------- |
 | **Revenue share** | 5% of yield (`revenueShareBps`) | Paid to L1/L2 referrers on locker `**claim`** |
-| **Remainder**     | ~45% of gross yield             | `Treasury.beneficiar`                         |
+| **Remainder**     | ~45% of gross yield             | `Treasury.beneficiar` — **net profit**        |
 
 
-At launch `beneficiar` is typically `GRAI.owner()`. 
+At launch `beneficiar` is typically `GRAI.owner()`. Part of net profit is intended for **open-market GRS buybacks** (~30% of distributed yield).
 
 ### Role ladder (GRAI)
 
