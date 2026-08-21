@@ -7,8 +7,8 @@
 | Group | Share | GRS | Notes |
 | ----- | ----- | --- | ----- |
 | **Investments** | 20% | 200M | |
-| → Token sales | 15% | 150M | Instant — `buy` / optional `grant` |
-| → Pre-seed | 5% | 50M | Linear, 24m after TGE |
+| → Token sales | 15% | 150M | Instant — `buy` / optional `grant`. **10% TGE** @ $20M FDV (ETH+SOL rows); **5% Late Sale** after protocol anniversary @ market − 20%. See [Token sales](token-sales.md) |
+| → Pre-seed | 5% | 50M | **$1M USDC** @ $0.02 ($20M FDV). Linear, 24m after TGE |
 | **Affiliates & airdrops** | 20% | 200M | |
 | → Revenue Share | 15% | 150M | Proprietary, ops |
 | → Airdrops | 5% | 50M | Proprietary, 67 seasons |
@@ -35,10 +35,12 @@ All cap-table **`grant`** calls are **`onlyOwner`** on home.
 
 ## TGE free float (M0)
 
-~**200M (20%)** immediately liquid:
+~**150M (15%)** immediately liquid if only the TGE sales slice is listed:
 
-- 150M Token sales
-- 50M Foundation proprietary float
+- **100M** Token sales (10% TGE rows)
+- **50M** Foundation proprietary float
+
+**50M** (5%) stays in TokenSales inventory for the **Late Sale** (after the protocol anniversary, market − 20%). Pre-seed **50M** is locked (24m linear).
 
 ## Holder vesting
 

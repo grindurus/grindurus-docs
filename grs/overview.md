@@ -28,7 +28,7 @@ Changing home is a **migration** (new lockboxes), not a remint.
 | Area | Functions | Who |
 | ---- | --------- | --- |
 | Cap table (home) | `grant`, `quoteGrant`, `getAllocations` | owner |
-| Sales | `sale`, `previewBuy`, `buy`, `quoteSale` | owner / anyone |
+| Sales | `sale`, `previewBuy`, `buy`, `quoteSale` | owner / anyone — plan: [Token sales](token-sales.md) (TGE 10% @ $20M FDV; Late Sale 5% after anniversary @ market − 20%) |
 | Vesting | `vest`, `release`, `getVestings` | holder / anyone |
 | Bridge | `bridge`, `quoteBridge`, `getPeers` | holder |
 | Votes (home) | `transfer`, `delegate` | holder |

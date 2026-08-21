@@ -44,6 +44,6 @@ Bridge is 1:1 in **GRS units**; dust rules apply on OFT send.
 
 ## Solana parity
 
-`programs/grs`: `init_grs`, `mint_genesis` (home once), `lz_receive`, `send` — same home/spoke split.
+`programs/grs`: `init`, `mint_genesis` (home once), `lz_receive`, `send` — same home/spoke split.
 
 Setup checklist for Sepolia ↔ devnet: see project `TODO.md` (deploy, wire peers, app config, test `sale` → `buy`).

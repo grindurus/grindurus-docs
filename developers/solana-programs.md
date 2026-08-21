@@ -18,7 +18,7 @@ Behavior mirrors EVM unless noted (e.g. Solana GRS has no on-chain `grant` cap t
 
 | Instruction | Home | Spoke |
 | ----------- | ---- | ----- |
-| `init_grs` | ✓ | ✓ |
+| `init` | ✓ | ✓ |
 | `mint_genesis` | once | reverts |
 | `sale` / `publish_sale` | ✓ | `NotHome` |
 | `buy` | ✓ | ✓ (after LZ publish) |

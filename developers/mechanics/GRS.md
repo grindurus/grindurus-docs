@@ -72,8 +72,8 @@ Vendor is an implementation choice. Accounting is the spec.
 | Bucket                    | Share    | GRS      | Gate        | Unlock                                               |
 | ------------------------- | -------- | -------- | ----------- | ---------------------------------------------------- |
 | **Investments**           | **20%**  | **200M** |             |                                                      |
-| Token sales               | 15%      | 150M     | Instant     | TGE, no vest (`buy` / optional `grant`)              |
-| Pre-seed                  | 5%       | 50M      | Linear      | no cliff, 24m after TGE (fully M24)                  |
+| Token sales               | 15%      | 150M     | Instant     | **10% TGE** @ $20M FDV (4 rows ETH/SOL); **5% Late Sale** after protocol anniversary @ market − 20%. [Token sales plan](../../grs/token-sales.md) |
+| Pre-seed                  | 5%       | 50M      | Linear      | **$1M USDC** @ $0.02; no cliff, 24m after TGE (fully M24) |
 | **Affiliates & airdrops** | **20%**  | **200M** |             |                                                      |
 | Revenue Share             | 15%      | 150M     | Proprietary | TGE allocated · ∞ (ops, no GRS vote)                 |
 | Airdrops                  | 5%       | 50M      | Proprietary | TGE · 67 seasons (M67)                               |
@@ -90,7 +90,7 @@ Vendor is an implementation choice. Accounting is the spec.
 | **Total**                 | **100%** | **1B**   |             |                                                      |
 
 
-**TGE (M0):** 200M (20%) free float = sales 150M + Foundation 50M. 400M (40%) gated at TGE (Revenue Share, Airdrops, Growth, LP). 400M (40%) still locked: 250M calendar vest (Pre-seed + Team) + 150M Foundation proprietary-gated.
+**TGE (M0):** ~150M (15%) free float = TGE sales **100M** + Foundation **50M**. TokenSales keeps **50M** for the **Late Sale** (after protocol anniversary). 400M (40%) gated at TGE (Revenue Share, Airdrops, Growth, LP). ~450M still locked/reserved: 250M calendar vest (Pre-seed + Team) + 150M Foundation proprietary-gated + 50M unsold TokenSales.
 
 
 | Term              | Meaning                                               |
@@ -137,7 +137,7 @@ Any holder, home or spoke (EVM / Solana). Instant (cliff = duration = 0) reverts
 
 ### Token sales
 
-Public TGE float from bucket **TokenSales** (150M, Instant, no vest). The book can hold many rows: each is remaining GRS (`grsAmount`) and remaining asset (`assetAmount`). `buy` pays a share of `assetAmount` and receives GRS immediately. Home may also `grant(TokenSales, …)` (EVM only); that spend **shares** the same 150M as `buy` on that OFT. Local listing (`dstEid = 0`) does not reserve the bucket; listing to a spoke does.
+Public float from bucket **TokenSales** (150M, Instant, no vest): **100M TGE** calendar + **50M Late Sale** after the protocol anniversary — [raise plan](../../grs/token-sales.md). The book can hold many rows: each is remaining GRS (`grsAmount`) and remaining asset (`assetAmount`). `buy` pays a share of `assetAmount` and receives GRS immediately. Home may also `grant(TokenSales, …)` (EVM only); that spend **shares** the same 150M as `buy` on that OFT. Local listing (`dstEid = 0`) does not reserve the bucket; listing to a spoke does.
 
 Home **LZ-publishes** the row with `sale(..., dstEid)`: home **burns** `grsAmount` from TokenSales inventory and the spoke `lzReceive` writes the row (`SaleAccepted`) **and mints that GRS into escrow**. Native `asset = 0` copies as native on every chain. `asset` and `recipient` are `bytes32` (EVM address left-padded; Solana mint / pubkey is already 32 bytes). On the wire `grsAmount` is OFT **shared decimals** (6); each chain stores local decimals.
 
