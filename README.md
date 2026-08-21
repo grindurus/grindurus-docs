@@ -6,16 +6,14 @@ GrindURUS runs a dual-sided strategy on crypto pairs: buy low / sell high and se
 
 ## What lives here
 
-| Section | What you learn |
-| ------- | -------------- |
-| [Quickstart](https://docs.grindurus.xyz/general/quickstart) | Deposit GRAI in the app |
-| [Manifesto](https://docs.grindurus.xyz/general/manifesto) | Why GrindURUS exists |
-| [Tokenomics](https://docs.grindurus.xyz/general/overview/tokenomics) | How GRAI, GRS, Treasury, and Grinders fit together |
-| [GRAI](https://docs.grindurus.xyz/grai/overview) | Deposit, lock, dividends, liquidation |
-| [GRS](https://docs.grindurus.xyz/grs/overview) | 1B protocol token, cap table, sales, bridge |
-| [Grinders](https://docs.grindurus.xyz/grinders/overview) | Custodian NFTs and where capital trades |
-| [Protocol](https://docs.grindurus.xyz/protocol/strategy) | Bots, Boss, adapters (Binance, CoW, LiFi, Jupiter) |
-| [Developers → Mechanics](https://docs.grindurus.xyz/developers/mechanics) | On-chain specs (GRAI, GRS, GRINDERS) |
+- [Quickstart](general/quickstart.md) — deposit GRAI in the app
+- [Manifesto](general/manifesto.md) — why GrindURUS exists
+- [Overview](general/overview/introduction.md) — architecture, tokenomics, GRAI / GRS roles
+- [GRAI](grai/overview.md) — deposit, lock, dividends, liquidation
+- [GRS](grs/overview.md) — 1B protocol token, cap table, sales, bridge
+- [Grinders](grinders/overview.md) — custodian NFTs and where capital trades
+- [Protocol](protocol/strategy.md) — bots, Boss, adapters (Binance, CoW, LiFi, Jupiter)
+- [Developers → Mechanics](developers/mechanics/README.md) — on-chain specs (GRAI, GRS, GRINDERS)
 
 ## Products
 

@@ -5,4 +5,5 @@ structure:
   summary: SUMMARY.md
 
 redirects:
-  general/overview/tokenomics: general/overview/tokenomics.md
+  general/overview/architecture: general/overview/introduction.md
+  general/overview/tokenomics: general/overview/introduction.md

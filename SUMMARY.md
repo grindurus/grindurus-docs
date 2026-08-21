@@ -7,8 +7,6 @@
 
 * [Manifesto](general/manifesto.md)
 * [Overview](general/overview/introduction.md)
-  * [Architecture](general/overview/architecture.md)
-  * [Tokenomics](general/overview/tokenomics.md)
 
 ## Protocol
 
