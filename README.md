@@ -12,7 +12,7 @@ GrindURUS runs a dual-sided strategy on crypto pairs: buy low / sell high and se
 - [GRAI](grai/overview.md) — deposit, lock, dividends, liquidation
 - [GRS](grs/overview.md) — 1B protocol token, cap table, sales, bridge
 - [Grinders](grinders/overview.md) — custodian NFTs and where capital trades
-- [Protocol](protocol/strategy.md) — bots, Boss, adapters (Binance, CoW, LiFi, Jupiter)
+- [Protocol](protocol/overview.md) — URUS accounting, GrindURUS strategy, Boss / adapters
 - [Developers → Mechanics](developers/mechanics/README.md) — on-chain specs (GRAI, GRS, GRINDERS)
 
 ## Products

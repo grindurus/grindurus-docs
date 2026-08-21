@@ -10,8 +10,7 @@
 
 ## Protocol
 
-* [GrindURUS strategy](protocol/strategy.md)
-* [Trading infrastructure](protocol/trading-infrastructure.md)
+* [Overview](protocol/overview.md)
 
 ## GRAI
 
