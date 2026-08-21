@@ -19,7 +19,7 @@ On the first deposit (`totalValue == 0`), mint is 1:1 with USD value (1 GRAI ≈
 ## What GRAI is not
 
 - Not GRS (fixed 1B equity token).
-- Not a yield vault with instant withdraw — see [Liquidation](liquidation.md) for the shutdown path.
+- Not a yield vault with instant withdraw — see [Liquidation](https://docs.grindurus.xyz/grai/liquidation) for the shutdown path.
 
 ## Core flows
 
@@ -40,11 +40,11 @@ On the first deposit (`totalValue == 0`), mint is 1:1 with USD value (1 GRAI ≈
 | EVM | `GRAI.sol` (UUPS) |
 | Solana | `programs/grai` |
 
-Spec: [GRAI mechanics](../developers/mechanics/GRAI.md)
+Spec: [GRAI mechanics](https://docs.grindurus.xyz/developers/mechanics/grai)
 
 ## Next pages
 
-- [Deposit and mint](deposit-and-mint.md)
-- [Lock, vote, dividends](lock-vote-and-dividends.md)
-- [Liquidation](liquidation.md)
-- [Treasury and affiliates](treasury-and-affiliates.md)
+- [Deposit and mint](https://docs.grindurus.xyz/grai/deposit-and-mint)
+- [Lock, vote, dividends](https://docs.grindurus.xyz/grai/lock-vote-and-dividends)
+- [Liquidation](https://docs.grindurus.xyz/grai/liquidation)
+- [Treasury and affiliates](https://docs.grindurus.xyz/grai/treasury-and-affiliates)

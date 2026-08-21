@@ -4,9 +4,9 @@ Canonical on-chain specs derived from EVM implementations. Solana programs mirro
 
 | Spec | Contract / program |
 | ---- | ------------------- |
-| [GRAI](GRAI.md) | `GRAI.sol`, `Treasury.sol` |
-| [Grinders](GRINDERS.md) | `Grinders.sol`, custodian proxies |
-| [GRS](GRS.md) | `GRS.sol`, `programs/grs` |
+| [GRAI](https://docs.grindurus.xyz/developers/mechanics/grai) | `GRAI.sol`, `Treasury.sol` |
+| [Grinders](https://docs.grindurus.xyz/developers/mechanics/grinders) | `Grinders.sol`, custodian proxies |
+| [GRS](https://docs.grindurus.xyz/developers/mechanics/grs) | `GRS.sol`, `programs/grs` |
 
 ## Diagrams
 

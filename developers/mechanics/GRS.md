@@ -1,6 +1,6 @@
 # GRS — protocol token
 
-Fixed-supply protocol equity / governance for Grindurus. On-chain OFT: `[GRS.sol](https://github.com/grindurus/grindurus-evm/blob/main/src/GRS.sol)` (EVM) and `[programs/grs](https://github.com/grindurus/grindurus-solana/tree/main/programs/grs)` (Solana). Related: `[GRAI.md](GRAI.md)`, `[GRINDERS.md](GRINDERS.md)`, `[Treasury.sol](https://github.com/grindurus/grindurus-evm/blob/main/src/Treasury.sol)`.
+Fixed-supply protocol equity / governance for Grindurus. On-chain OFT: `[GRS.sol](https://github.com/grindurus/grindurus-evm/blob/main/src/GRS.sol)` (EVM) and `[programs/grs](https://github.com/grindurus/grindurus-solana/tree/main/programs/grs)` (Solana). Related: [GRAI.md](https://docs.grindurus.xyz/developers/mechanics/grai), [GRINDERS.md](https://docs.grindurus.xyz/developers/mechanics/grinders), `[Treasury.sol](https://github.com/grindurus/grindurus-evm/blob/main/src/Treasury.sol)`.
 
 
 |        | **GRAI**                   | **GRS**                                                 |
@@ -72,7 +72,7 @@ Vendor is an implementation choice. Accounting is the spec.
 | Bucket                    | Share    | GRS      | Gate        | Unlock                                               |
 | ------------------------- | -------- | -------- | ----------- | ---------------------------------------------------- |
 | **Investments**           | **20%**  | **200M** |             |                                                      |
-| Token sales               | 15%      | 150M     | Instant     | **10% TGE** @ $20M FDV (4 rows ETH/SOL); **5% Late Sale** after protocol anniversary @ market − 20%. [Token sales plan](../../grs/token-sales.md) |
+| Token sales               | 15%      | 150M     | Instant     | **10% TGE** @ $20M FDV (4 rows ETH/SOL); **5% Late Sale** after protocol anniversary @ market − 20%. [Token sales plan](https://docs.grindurus.xyz/grs/token-sales) |
 | Pre-seed                  | 5%       | 50M      | Linear      | **$1M USDC** @ $0.02; no cliff, 24m after TGE (fully M24) |
 | **Affiliates & airdrops** | **20%**  | **200M** |             |                                                      |
 | Revenue Share             | 15%      | 150M     | Proprietary | TGE allocated · ∞ (ops, no GRS vote)                 |
@@ -137,7 +137,7 @@ Any holder, home or spoke (EVM / Solana). Instant (cliff = duration = 0) reverts
 
 ### Token sales
 
-Public float from bucket **TokenSales** (150M, Instant, no vest): **100M TGE** calendar + **50M Late Sale** after the protocol anniversary — [raise plan](../../grs/token-sales.md). The book can hold many rows: each is remaining GRS (`grsAmount`) and remaining asset (`assetAmount`). `buy` pays a share of `assetAmount` and receives GRS immediately. Home may also `grant(TokenSales, …)` (EVM only); that spend **shares** the same 150M as `buy` on that OFT. Local listing (`dstEid = 0`) does not reserve the bucket; listing to a spoke does.
+Public float from bucket **TokenSales** (150M, Instant, no vest): **100M TGE** calendar + **50M Late Sale** after the protocol anniversary — [raise plan](https://docs.grindurus.xyz/grs/token-sales). The book can hold many rows: each is remaining GRS (`grsAmount`) and remaining asset (`assetAmount`). `buy` pays a share of `assetAmount` and receives GRS immediately. Home may also `grant(TokenSales, …)` (EVM only); that spend **shares** the same 150M as `buy` on that OFT. Local listing (`dstEid = 0`) does not reserve the bucket; listing to a spoke does.
 
 Home **LZ-publishes** the row with `sale(..., dstEid)`: home **burns** `grsAmount` from TokenSales inventory and the spoke `lzReceive` writes the row (`SaleAccepted`) **and mints that GRS into escrow**. Native `asset = 0` copies as native on every chain. `asset` and `recipient` are `bytes32` (EVM address left-padded; Solana mint / pubkey is already 32 bytes). On the wire `grsAmount` is OFT **shared decimals** (6); each chain stores local decimals.
 
@@ -230,7 +230,7 @@ Votes do not move custodian keys. GRS governs parameters and fee routing.
 | Steady    | params / upgrades only via GRS vote                               |
 
 
-Until then live admin is `[GRAI.md](GRAI.md)` §13. Yield cuts are fixed at GRAI `initialize`; changing them is an upgrade, GRS-gated after migration. Defaults: `treasuryCutBps` 33_33, `revenueShareBps` 5_00, L1/L2 80/20.
+Until then live admin is [GRAI.md](https://docs.grindurus.xyz/developers/mechanics/grai) §13. Yield cuts are fixed at GRAI `initialize`; changing them is an upgrade, GRS-gated after migration. Defaults: `treasuryCutBps` 33_33, `revenueShareBps` 5_00, L1/L2 80/20.
 
 ---
 
@@ -259,6 +259,6 @@ Until then live admin is `[GRAI.md](GRAI.md)` §13. Yield cuts are fixed at GRAI
 
 Spokes: `NotHome` on cap table and `sale`. Sale `lzReceive` is spoke-only (`NotSpoke` on home). Hub votes only on home GRS.
 
-`[protocol.svg](protocol.svg)` · `[GRAI.md](GRAI.md)` · `[GRINDERS.md](GRINDERS.md)` · `[README.md](https://github.com/grindurus/grindurus-evm/blob/main/README.md)`
+`[protocol.svg](protocol.svg)` · [GRAI.md](https://docs.grindurus.xyz/developers/mechanics/grai) · [GRINDERS.md](https://docs.grindurus.xyz/developers/mechanics/grinders) · `[README.md](https://github.com/grindurus/grindurus-evm/blob/main/README.md)`
 
 *August 2026 — target tokenomics; subject to change before mainnet GRS.*

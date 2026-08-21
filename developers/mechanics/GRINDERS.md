@@ -1,6 +1,6 @@
 # Grinders
 
-Report derived from on-chain logic in [`Grinders.sol`](https://github.com/grindurus/grindurus-evm/blob/main/src/Grinders.sol), [`Custodian.sol`](https://github.com/grindurus/grindurus-evm/blob/main/src/Custodian.sol), and custodian kinds under [`src/custodians/`](https://github.com/grindurus/grindurus-evm/blob/main/src/custodians) (EVM implementation, August 2026). GRAI share / dividend / auction mechanics: [`GRAI.md`](GRAI.md).
+Report derived from on-chain logic in [`Grinders.sol`](https://github.com/grindurus/grindurus-evm/blob/main/src/Grinders.sol), [`Custodian.sol`](https://github.com/grindurus/grindurus-evm/blob/main/src/Custodian.sol), and custodian kinds under [`src/custodians/`](https://github.com/grindurus/grindurus-evm/blob/main/src/custodians) (EVM implementation, August 2026). GRAI share / dividend / auction mechanics: [GRAI.md](https://docs.grindurus.xyz/developers/mechanics/grai).
 
 ---
 
@@ -171,7 +171,7 @@ dividendCut  = received * dividendCutBps / BPS   // floor first
 treasuryCut  = received - dividendCut            // remainder → treasury
 ```
 
-Defaults **50% / 50%** → unvoted-locker dividends / treasury. Full cut rules and claims: [`GRAI.md`](GRAI.md) §5.
+Defaults **50% / 50%** → unvoted-locker dividends / treasury. Full cut rules and claims: [GRAI.md](https://docs.grindurus.xyz/developers/mechanics/grai) §5.
 
 Analytics: `positions[msg.sender][asset].yielded` on GRAI accumulates credited distribute amounts (per caller — here the custodian wallet).
 

@@ -42,4 +42,4 @@ The same logic is implemented on **EVM** (Solidity, UUPS where noted) and **Sola
 
 ## Repositories
 
-See [Repositories](../developers/repositories.md) for the full map of `grindurus-protocol`, `grindurus-evm`, `grindurus-solana`, `grindurus-app`, and related trees.
+See [Repositories](https://docs.grindurus.xyz/developers/repositories) for the full map of `grindurus-protocol`, `grindurus-evm`, `grindurus-solana`, `grindurus-app`, and related trees.

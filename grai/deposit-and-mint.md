@@ -20,7 +20,7 @@ On the first mint for a locker, `referrer` binds permanently in Treasury:
 | `0` / self | Locker roots on itself |
 | Another address | That address becomes upline for affiliate books |
 
-See [Treasury and affiliates](treasury-and-affiliates.md).
+See [Treasury and affiliates](https://docs.grindurus.xyz/grai/treasury-and-affiliates).
 
 ## Oracle listing
 

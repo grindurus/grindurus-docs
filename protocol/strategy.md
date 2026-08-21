@@ -38,5 +38,5 @@ Off-chain backtests use historical klines (Binance adapter) without touching GRA
 
 ## Learn more
 
-- [Trading infrastructure](trading-infrastructure.md) — adapters and terminals
-- [Grinders overview](../grinders/overview.md) — on-chain custodians
+- [Trading infrastructure](https://docs.grindurus.xyz/protocol/trading-infrastructure) — adapters and terminals
+- [Grinders overview](https://docs.grindurus.xyz/grinders/overview) — on-chain custodians

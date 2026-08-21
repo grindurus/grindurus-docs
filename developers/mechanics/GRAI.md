@@ -1120,7 +1120,7 @@ Tests: `[test/TreasuryPoach.t.sol](https://github.com/grindurus/grindurus-evm/bl
 
 ## 13. Grinders layer
 
-Full write-up: `[GRINDERS.md](GRINDERS.md)`.
+Full write-up: [GRINDERS.md](https://docs.grindurus.xyz/developers/mechanics/grinders).
 
 
 | Topic              | Behavior                                                |

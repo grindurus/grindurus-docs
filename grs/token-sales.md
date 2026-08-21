@@ -7,7 +7,7 @@ Public float from the **TokenSales** bucket: **150M GRS (15%)**, Instant gate, n
 | **TGE sales** | 10% | 100M | At / around TGE | Flat **$0.02** → **$20M FDV** |
 | **Late Sale** | 5% | 50M | After the protocol anniversary | **20% discount to market** (TWAP) |
 
-Pre-seed is a separate bucket (5%, $1M USDC, 24m linear) — see [Cap table](cap-table.md).
+Pre-seed is a separate bucket (5%, $1M USDC, 24m linear) — see [Cap table](https://docs.grindurus.xyz/grs/cap-table).
 
 ## Raise plan (target)
 
@@ -62,7 +62,7 @@ Public framing: **Late Sale** after anniversary — not a second pre-seed.
 
 ## After TGE — fee buyback
 
-Protocol yield (`GRAI.distribute`) splits ~50% dividends / ~50% treasury. After affiliates, roughly **~30% of distributed volatility income** is intended to route via `beneficiar` / FeeVault into **buying GRS on the open market**. See [GRS mechanics](../developers/mechanics/GRS.md) and [GRAI — Treasury](../grai/treasury-and-affiliates.md).
+Protocol yield (`GRAI.distribute`) splits ~50% dividends / ~50% treasury. After affiliates, roughly **~30% of distributed volatility income** is intended to route via `beneficiar` / FeeVault into **buying GRS on the open market**. See [GRS mechanics](https://docs.grindurus.xyz/developers/mechanics/grs) and [GRAI — Treasury](https://docs.grindurus.xyz/grai/treasury-and-affiliates).
 
 Buybacks use the **protocol cut**, not the locker dividend cut.
 

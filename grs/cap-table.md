@@ -7,7 +7,7 @@
 | Group | Share | GRS | Notes |
 | ----- | ----- | --- | ----- |
 | **Investments** | 20% | 200M | |
-| → Token sales | 15% | 150M | Instant — `buy` / optional `grant`. **10% TGE** @ $20M FDV (ETH+SOL rows); **5% Late Sale** after protocol anniversary @ market − 20%. See [Token sales](token-sales.md) |
+| → Token sales | 15% | 150M | Instant — `buy` / optional `grant`. **10% TGE** @ $20M FDV (ETH+SOL rows); **5% Late Sale** after protocol anniversary @ market − 20%. See [Token sales](https://docs.grindurus.xyz/grs/token-sales) |
 | → Pre-seed | 5% | 50M | **$1M USDC** @ $0.02 ($20M FDV). Linear, 24m after TGE |
 | **Affiliates & airdrops** | 20% | 200M | |
 | → Revenue Share | 15% | 150M | Proprietary, ops |

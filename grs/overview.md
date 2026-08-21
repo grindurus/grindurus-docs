@@ -28,7 +28,7 @@ Changing home is a **migration** (new lockboxes), not a remint.
 | Area | Functions | Who |
 | ---- | --------- | --- |
 | Cap table (home) | `grant`, `quoteGrant`, `getAllocations` | owner |
-| Sales | `sale`, `previewBuy`, `buy`, `quoteSale` | owner / anyone — plan: [Token sales](token-sales.md) (TGE 10% @ $20M FDV; Late Sale 5% after anniversary @ market − 20%) |
+| Sales | `sale`, `previewBuy`, `buy`, `quoteSale` | owner / anyone — plan: [Token sales](https://docs.grindurus.xyz/grs/token-sales) (TGE 10% @ $20M FDV; Late Sale 5% after anniversary @ market − 20%) |
 | Vesting | `vest`, `release`, `getVestings` | holder / anyone |
 | Bridge | `bridge`, `quoteBridge`, `getPeers` | holder |
 | Votes (home) | `transfer`, `delegate` | holder |
@@ -45,10 +45,10 @@ GRS governs protocol parameters and fee routing — not custodian keys:
 
 Target stack: **ERC20Votes** on home GRS + Governor + timelock.
 
-Spec: [GRS mechanics](../developers/mechanics/GRS.md)
+Spec: [GRS mechanics](https://docs.grindurus.xyz/developers/mechanics/grs)
 
 ## Pages
 
-- [Cap table](cap-table.md)
-- [Bridge](bridge.md)
-- [Token sales](token-sales.md)
+- [Cap table](https://docs.grindurus.xyz/grs/cap-table)
+- [Bridge](https://docs.grindurus.xyz/grs/bridge)
+- [Token sales](https://docs.grindurus.xyz/grs/token-sales)

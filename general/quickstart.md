@@ -34,4 +34,4 @@ While the fund is live there is **no protocol redeem**.
 
 - [Buy GRS](https://app.grindurus.xyz) — protocol token sales
 - [Backtest](https://app.grindurus.xyz/backtest) — volatility calculator
-- [How GRAI works](../grai/overview.md)
+- [How GRAI works](https://docs.grindurus.xyz/grai/overview)

@@ -1,6 +1,6 @@
 # Tokenomics
 
-This page is the high-level economics map. Detail lives under [GRAI](../../grai/overview.md), [GRS](../../grs/overview.md), and [Treasury / affiliates](../../grai/treasury-and-affiliates.md).
+This page is the high-level economics map. Detail lives under [GRAI](https://docs.grindurus.xyz/grai/overview), [GRS](https://docs.grindurus.xyz/grs/overview), and [Treasury / affiliates](https://docs.grindurus.xyz/grai/treasury-and-affiliates).
 
 ## Yield split (default GRAI config)
 
@@ -44,7 +44,7 @@ holder → lock() → locker (unvoted) → vote() → voter ← bribe() ← brib
 - Cap-table **`grant`** is `owner` on home; spokes revert `NotHome`.
 - Votes target: home GRS + Governor + timelock controlling GRAI / Grinders / Treasury params.
 
-Full bucket table: [GRS cap table](../../grs/cap-table.md).
+Full bucket table: [GRS cap table](https://docs.grindurus.xyz/grs/cap-table).
 
 ## What GRS is not
 

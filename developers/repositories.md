@@ -18,11 +18,11 @@ Local workspace often clones all trees as siblings under one `grindurus/` folder
 
 | Doc | Path |
 | --- | ---- |
-| GRAI mechanics | [developers/mechanics/GRAI.md](mechanics/GRAI.md) |
-| GRS mechanics | [developers/mechanics/GRS.md](mechanics/GRS.md) |
-| Grinders mechanics | [developers/mechanics/GRINDERS.md](mechanics/GRINDERS.md) |
+| GRAI mechanics | [developers/mechanics/GRAI.md](https://docs.grindurus.xyz/developers/mechanics/grai) |
+| GRS mechanics | [developers/mechanics/GRS.md](https://docs.grindurus.xyz/developers/mechanics/grs) |
+| Grinders mechanics | [developers/mechanics/GRINDERS.md](https://docs.grindurus.xyz/developers/mechanics/grinders) |
 | Capability checklist | `FUNCTIONALITY.md` (monorepo root) |
-| Manifesto | [general/manifesto.md](../general/manifesto.md) |
+| Manifesto | [general/manifesto.md](https://docs.grindurus.xyz/general/manifesto) |
 
 ## GitBook sync
 
