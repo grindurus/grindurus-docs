@@ -6,23 +6,19 @@ GrindURUS runs a dual-sided strategy on crypto pairs: buy low / sell high and se
 
 ## What lives here
 
-| Section | What you learn |
-| -------- | -------------- |
-| [Quickstart](general/quickstart.md) | Deposit GRAI in the app |
-| [General → Tokenomics](general/overview/tokenomics.md) | How GRAI, GRS, Treasury, and Grinders fit together |
-| [GRAI](grai/overview.md) | Deposit, lock, dividends, liquidation |
-| [GRS](grs/overview.md) | 1B protocol token, cap table, sales, bridge |
-| [Grinders](grinders/overview.md) | Custodian NFTs and where capital trades |
-| [Protocol](protocol/strategy.md) | Bots, Boss, adapters (Binance, CoW, LiFi, Jupiter) |
+- [Quickstart](./general/quickstart.md) — deposit GRAI in the app
+- [Manifesto](./general/manifesto.md) — why GrindURUS exists
+- [Tokenomics](./general/overview/tokenomics.md) — how GRAI, GRS, Treasury, and Grinders fit together
+- [GRAI](./grai/overview.md) — deposit, lock, dividends, liquidation
+- [GRS](./grs/overview.md) — 1B protocol token, cap table, sales, bridge
+- [Grinders](./grinders/overview.md) — custodian NFTs and where capital trades
+- [Protocol](./protocol/strategy.md) — bots, Boss, adapters (Binance, CoW, LiFi, Jupiter)
+- [Developers → Mechanics](./developers/mechanics/README.md) — on-chain specs (GRAI, GRS, GRINDERS)
 
 ## Products
 
-| | URL |
-| --- | --- |
-| Website | [grindurus.xyz](https://grindurus.xyz) |
-| App | [app.grindurus.xyz](https://app.grindurus.xyz) |
-| Source | [github.com/grindurus](https://github.com/grindurus) |
-
-Full on-chain specs: [Developers → Mechanics](developers/mechanics/README.md) (GRAI, GRS, GRINDERS).
+- Website — [grindurus.xyz](https://grindurus.xyz)
+- App — [app.grindurus.xyz](https://app.grindurus.xyz)
+- Source — [github.com/grindurus](https://github.com/grindurus)
 
 *Last updated: August 2026. Pre-mainnet; details may change before TGE.*
