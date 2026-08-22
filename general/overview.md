@@ -76,9 +76,9 @@ Depositor
 
 ### Protocol map
 
-![GrindURUS protocol map: actors, contracts, and yield cuts](../developers/mechanics/protocol.svg)
+![GrindURUS protocol map: actors, contracts, and yield cuts](../developers/mechanics/protocol.png)
 
-Source: [protocol.svg](../developers/mechanics/protocol.svg).
+Source: [protocol.svg](../developers/mechanics/protocol.svg) · PNG: [protocol.png](../developers/mechanics/protocol.png).
 
 GRAI actors: locker, voter, briber, referrer, poacher
 
