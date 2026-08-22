@@ -7,7 +7,7 @@
 | Group | Share | GRS | Notes |
 | ----- | ----- | --- | ----- |
 | **Investments** | 20% | 200M | |
-| → Token sales | 15% | 150M | Instant — `buy` / optional `grant`. **10% TGE** @ $20M FDV (ETH+SOL rows); **5% Late Sale** after protocol anniversary @ market − 20%. See [Token sales](https://docs.grindurus.xyz/grs/token-sales) |
+| → Token sales | 15% | 150M* | Instant — `buy` / optional `grant`. **10% TGE** @ $20M FDV (ETH+SOL rows); **5% Late Sale** after protocol anniversary at a **discount**. Fee buybacks re-enter TokenSales and resell at the same discount policy. See [Token sales](https://docs.grindurus.xyz/grs/token-sales) |
 | → Pre-seed | 5% | 50M | **$1M USDC** @ $0.02 ($20M FDV). Linear, 24m after TGE |
 | **Affiliates & airdrops** | 20% | 200M | |
 | → Revenue Share | 15% | 150M | Proprietary, ops |
@@ -40,7 +40,9 @@ All cap-table **`grant`** calls are **`onlyOwner`** on home.
 - **100M** Token sales (10% TGE rows)
 - **50M** Foundation proprietary float
 
-**50M** (5%) stays in TokenSales inventory for the **Late Sale** (after the protocol anniversary, market − 20%). Pre-seed **50M** is locked (24m linear).
+**50M** (5%) stays in TokenSales inventory for the **Late Sale** (after the protocol anniversary, discount). Pre-seed **50M** is locked (24m linear).
+
+\* Genesis **150M** TokenSales plan; on-chain the bucket is uncapped so fee **buybacks** can re-enter escrow and be relisted at a **discount**.
 
 ## Holder vesting
 

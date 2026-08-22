@@ -72,7 +72,7 @@ Vendor is an implementation choice. Accounting is the spec.
 | Bucket                    | Share    | GRS      | Gate        | Unlock                                               |
 | ------------------------- | -------- | -------- | ----------- | ---------------------------------------------------- |
 | **Investments**           | **20%**  | **200M** |             |                                                      |
-| Token sales               | 15%      | 150M     | Instant     | **10% TGE** @ $20M FDV (4 rows ETH/SOL); **5% Late Sale** after protocol anniversary @ market − 20%. [Token sales plan](https://docs.grindurus.xyz/grs/token-sales) |
+| Token sales               | 15%      | 150M*    | Instant     | **10% TGE** @ $20M FDV (4 rows ETH/SOL); **5% Late Sale** after protocol anniversary at a **discount**. Buybacks re-enter TokenSales and resell under the same discount policy. [Token sales plan](https://docs.grindurus.xyz/grs/token-sales) |
 | Pre-seed                  | 5%       | 50M      | Linear      | **$1M USDC** @ $0.02; no cliff, 24m after TGE (fully M24) |
 | **Affiliates & airdrops** | **20%**  | **200M** |             |                                                      |
 | Revenue Share             | 15%      | 150M     | Proprietary | TGE allocated · ∞ (ops, no GRS vote)                 |
@@ -91,6 +91,8 @@ Vendor is an implementation choice. Accounting is the spec.
 
 
 **TGE (M0):** ~150M (15%) free float = TGE sales **100M** + Foundation **50M**. TokenSales keeps **50M** for the **Late Sale** (after protocol anniversary). 400M (40%) gated at TGE (Revenue Share, Airdrops, Growth, LP). ~450M still locked/reserved: 250M calendar vest (Pre-seed + Team) + 150M Foundation proprietary-gated + 50M unsold TokenSales.
+
+\* **150M** is the genesis TokenSales **plan**. On-chain the bucket is uncapped so fee buybacks can re-enter inventory and be relisted at a **discount** (same policy as Late Sale).
 
 
 | Term              | Meaning                                               |
@@ -137,7 +139,9 @@ Any holder, home or spoke (EVM / Solana). Instant (cliff = duration = 0) reverts
 
 ### Token sales
 
-Public float from bucket **TokenSales** (150M, Instant, no vest): **100M TGE** calendar + **50M Late Sale** after the protocol anniversary — [raise plan](https://docs.grindurus.xyz/grs/token-sales). The book can hold many rows: each is remaining GRS (`grsAmount`) and remaining asset (`assetAmount`). `buy` pays a share of `assetAmount` and receives GRS immediately. Home may also `grant(TokenSales, …)` (EVM only); that spend **shares** the same 150M as `buy` on that OFT. Local listing (`dstEid = 0`) does not reserve the bucket; listing to a spoke does.
+Public float from bucket **TokenSales** (Instant, no vest). Genesis **plan**: **100M TGE** + **50M Late Sale** after the protocol anniversary — [raise plan](https://docs.grindurus.xyz/grs/token-sales). On-chain the bucket is **uncapped** (`capOf = max`; `remaining` = escrow inventory): fee **buybacks** return GRS to TokenSales and can be relisted beyond the 150M plan. Public resale for Late Sale and recycled buybacks: a **discount** (ops-set).
+
+The book can hold many rows: each is remaining GRS (`grsAmount`) and remaining asset (`assetAmount`). `buy` pays a share of `assetAmount` and receives GRS immediately. Home may also `grant(TokenSales, …)` (EVM only); `spent[TokenSales]` is accounting only (no hard 150M gate). Local listing (`dstEid = 0`) does not reserve inventory; listing to a spoke does.
 
 Home **LZ-publishes** the row with `sale(..., dstEid)`: home **burns** `grsAmount` from TokenSales inventory and the spoke `lzReceive` writes the row (`SaleAccepted`) **and mints that GRS into escrow**. Native `asset = 0` copies as native on every chain. `asset` and `recipient` are `bytes32` (EVM address left-padded; Solana mint / pubkey is already 32 bytes). On the wire `grsAmount` is OFT **shared decimals** (6); each chain stores local decimals.
 
@@ -174,7 +178,7 @@ Home **lists** with `sale` (id auto; `dstEid = 0` is local, no burn). `dstEid �
 1. Open sale (`assetAmount ≠ 0` and `grsAmount ≠ 0`), buy `amount ≠ 0`, `to ≠ 0`. Buy over remaining → `SaleExceeded`. Sold-out `grsAmount == 0` → `SaleClosed`.
 2. Cost: buying the **whole remainder** pays remaining `assetAmount` exactly. A partial fill is `floor(amount × assetAmount / remaining GRS)`. Zero cost reverts.
 3. Decrement that row’s remaining `grsAmount` **and** `assetAmount`.
-4. Debit TokenSales: EVM `spent[TokenSales]`; Solana `token_sales_spent`. Over 150M → `BucketExceeded`. Local listing does **not** lock the 150M; listing with `dstEid ≠ 0` **does** (home burns that GRS). `buy` hits `min(row remaining, 150M left, escrow)`.
+4. Debit TokenSales: EVM `spent[TokenSales]`; Solana `token_sales_spent` (accounting only — **no** hard 150M `BucketExceeded`). `buy` is limited by row remaining and escrow inventory (including recycled buybacks).
 5. Quote to `recipient` (or owner/admin): native must equal `cost` (`msg.value` / SOL transfer); ERC-20/SPL `transferFrom` / `transfer_checked` and `msg.value == 0`.
 6. GRS from **escrow** to `to`. Instant — no vest. Buyer may `bridge` next.
 
@@ -184,11 +188,11 @@ Insufficient escrow reverts (ERC-20 / SPL). `buy` never mints.
 
 |                | Home                                                                 | Spoke                                                                 |
 | -------------- | -------------------------------------------------------------------- | --------------------------------------------------------------------- |
-| Escrow         | EVM: `address(this)` (1B genesis). Solana: `sale_escrow` (fund from genesis mint). | Minted by home `sale(..., dstEid)` / `publish_sale` into this contract / `sale_escrow`. |
-| TokenSales 150M | This OFT's `spent` / `token_sales_spent`. Home `grant(TokenSales)` and dest-chain `sale` count. | Same 150M **locally**. Not a shared LZ counter.                       |
+| Escrow         | EVM: `address(this)` (1B genesis + buybacks). Solana: `sale_escrow`. | Minted by home `sale(..., dstEid)` / `publish_sale` into this contract / `sale_escrow`. |
+| TokenSales     | Uncapped. `spent` / `token_sales_spent` for accounting. Genesis plan 150M; buybacks re-enter inventory. | Same local inventory model. Not a shared LZ counter. |
 
 
-Genesis 150M TokenSales inventory lives on **home**. A spoke sale is minted into escrow when home publishes the row (1:1 burn on home). Do not also grant the same TokenSales GRS on home.
+Genesis TokenSales inventory lives on **home**. A spoke sale is minted into escrow when home publishes the row (1:1 burn on home). Do not also grant the same TokenSales GRS on home. **Buybacks** (beneficiar / FeeVault market buys) deposit GRS back into home escrow and are intended to be relisted at a **discount** (same policy as Late Sale).
 
 `getSales(offset, limit)` — 0-based offset, id = offset+1. Empty page if `offset >= saleCount` or `limit = 0`.
 
@@ -212,7 +216,7 @@ Votes do not move custodian keys. GRS governs parameters and fee routing.
 
 **Cap-table releases (home):** `grant` is `owner` for every bucket (Instant / Linear / Proprietary). Target stack for **protocol** params still: `ERC20Votes` on home GRS (checkpoints follow `_update`, including OFT) + Governor + timelock as `GRAI.owner()` / `Grinders.owner()`. Spoke GRS does not vote. Proposal **0.1%** (1M GRS), quorum **4%** of past supply, delay **48h** params / **7d** upgrades.
 
-**Fees (default GRAI):** `treasuryCut` 33.33% of yield; `revenueShare` 5% affiliates; beneficiar net ≈ 30%. Stake GRS → `xGRS`; FeeVault streams stables/WETH pro-rata. Optional `veGRS` boosts votes. GRS never claims GRAI NAV or locker dividends.
+**Fees (default GRAI):** `treasuryCut` 33.33% of yield; `revenueShare` 5% affiliates; beneficiar net ≈ 30%. Stake GRS → `xGRS`; FeeVault streams stables/WETH pro-rata. Optional `veGRS` boosts votes. GRS never claims GRAI NAV or locker dividends. Intended fee surplus path: **market-buy GRS → TokenSales inventory → resale at a discount**.
 
 **Not:** a deposit receipt (GRAI), operator license (Grinders NFT), affiliate right (GRAI-TREASURY NFT), or yield-minted token.
 

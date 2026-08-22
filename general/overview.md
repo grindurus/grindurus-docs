@@ -76,6 +76,10 @@ Depositor
 
 ### Protocol map
 
+![GrindURUS protocol map: actors, contracts, and yield cuts](../developers/mechanics/protocol.svg)
+
+Source: [protocol.svg](../developers/mechanics/protocol.svg).
+
 GRAI actors: locker, voter, briber, referrer, poacher
 
 
@@ -155,7 +159,7 @@ From the treasury cut:
 | **Remainder**     | ~45% of gross yield             | `Treasury.beneficiar` — **net profit**        |
 
 
-At launch `beneficiar` is typically `GRAI.owner()`. Part of net profit is intended for **open-market GRS buybacks** (~30% of distributed yield).
+At launch `beneficiar` is typically `GRAI.owner()`. Part of net profit is intended for **open-market GRS buybacks** (~30% of distributed yield). Bought GRS return to **TokenSales** and are relisted at a **discount** — see [Token sales](../grs/token-sales.md).
 
 ### Role ladder (GRAI)
 

@@ -5,7 +5,7 @@ Public float from the **TokenSales** bucket: **150M GRS (15%)**, Instant gate, n
 | Slice | Share | GRS | When | Pricing |
 | ----- | ----- | --- | ---- | ------- |
 | **TGE sales** | 10% | 100M | At / around TGE | Flat **$0.02** → **$20M FDV** |
-| **Late Sale** | 5% | 50M | After the protocol anniversary | **20% discount to market** (TWAP) |
+| **Late Sale** | 5% | 50M | After the protocol anniversary | **discount** |
 
 Pre-seed is a separate bucket (5%, $1M USDC, 24m linear) — see [Cap table](https://docs.grindurus.xyz/grs/cap-table).
 
@@ -54,17 +54,19 @@ Quote mint / native asset per row is set when the owner calls `sale`.
 | --- | --- |
 | Allocation | **5%** left in TokenSales after TGE |
 | Timing | **After the protocol anniversary** (not before year one) |
-| Price | **\(0.8 \times\) market** — **20% discount to GRS TWAP** (not last tick) |
+| Price | **discount** |
 | Unlock | Instant (same TokenSales gate), unless a vest is added later by policy |
-| Raise | Depends on spot; e.g. TWAP $0.10 → sale $0.08 → up to **~$4M** if fully filled |
+| Raise | Depends on spot and the chosen discount |
 
 Public framing: **Late Sale** after anniversary — not a second pre-seed.
 
-## After TGE — fee buyback
+## After TGE — fee buyback → TokenSales
 
 Protocol yield (`GRAI.distribute`) splits ~50% dividends / ~50% treasury. After affiliates, roughly **~30% of distributed volatility income** is intended to route via `beneficiar` / FeeVault into **buying GRS on the open market**. See [GRS mechanics](https://docs.grindurus.xyz/developers/mechanics/grs) and [GRAI — Treasury](https://docs.grindurus.xyz/grai/treasury-and-affiliates).
 
 Buybacks use the **protocol cut**, not the locker dividend cut.
+
+**Recycle:** purchased GRS are returned to **TokenSales** escrow inventory (EVM `address(this)` / Solana `sale_escrow`). On-chain TokenSales is **uncapped** for this path — buybacks can re-enter the book beyond the genesis 150M plan. Ops then list them again with `sale` / `buy` at a **discount** (ops-set; same policy as Late Sale). Fee surplus buys spot and re-offers protocol equity below market.
 
 ## Book model
 
@@ -118,10 +120,11 @@ Previews:
 
 ## Limits
 
-- TokenSales cap **150M** total (`spent[TokenSales]` / `token_sales_spent`).
+- Genesis plan **150M** TokenSales float (TGE + Late Sale); on-chain bucket is **uncapped** so buybacks can re-enter inventory.
+- Buybacked GRS → TokenSales escrow → relist at a **discount**.
 - `buy` never mints — only transfers from escrow.
 - Do not `grant(TokenSales)` and LZ-publish the same GRS twice.
-- Late Sale discount should reference **TWAP**, not a single print, once oracles / pool TWAP are wired.
+- Late Sale / buyback-resale price is an ops-set **discount** to market.
 
 ## App
 

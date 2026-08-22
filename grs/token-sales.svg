@@ -114,8 +114,8 @@
     <text x="20" y="48" class="phaseSub">After protocol anniversary</text>
     <text x="20" y="92" class="big">5%</text>
     <text x="100" y="88" class="mid">50M GRS</text>
-    <text x="20" y="128" class="mid">Market - 20%</text>
-    <text x="20" y="152" class="small">Price = 0.8 x GRS TWAP</text>
+    <text x="20" y="128" class="mid">Discount</text>
+    <text x="20" y="152" class="small">Ops-set below market</text>
     <text x="20" y="176" class="small">Not before year one</text>
     <text x="20" y="200" class="small">Raise depends on spot</text>
   </g>
@@ -145,8 +145,8 @@
     <rect width="240" height="100" rx="14" fill="#0f172a"/>
     <text x="20" y="26" style="font:700 12px ui-sans-serif,system-ui,sans-serif;fill:#f8fafc">After TGE</text>
     <text x="20" y="44" style="font:700 12px ui-sans-serif,system-ui,sans-serif;fill:#f8fafc">buybacks by revenue</text>
-    <text x="20" y="66" style="font:400 11px ui-sans-serif,system-ui,sans-serif;fill:#cbd5e1">~30% of vol income</text>
-    <text x="20" y="84" style="font:400 11px ui-sans-serif,system-ui,sans-serif;fill:#cbd5e1">to market buy of GRS</text>
+    <text x="20" y="66" style="font:400 11px ui-sans-serif,system-ui,sans-serif;fill:#cbd5e1">~30% vol income → buy GRS</text>
+    <text x="20" y="84" style="font:400 11px ui-sans-serif,system-ui,sans-serif;fill:#cbd5e1">→ TokenSales @ discount</text>
   </g>
 
 </svg>
