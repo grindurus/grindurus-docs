@@ -57,7 +57,7 @@ Circulating GRS (home unlocked + all spokes) never exceeds 1B, and never exceeds
 2. Spoke mint authority is **only** the OFT adapter. Home mint stays revoked. Lockbox never mints.
 3. Amount in = amount out. Failed messages do not mint.
 4. New chain = new spoke + same accounting — **zero** extra genesis.
-5. Token sales: home **lists** with `sale` (`dstEid` LZ-publishes to a spoke, burns `grsAmount`); the spoke `lzReceive` writes the row **and mints into escrow**. Mechanics: [§3 Token sales](#token-sales). LP & MM may still seed on home, then bridge.
+5. Token sales: home **lists** with `sale` (`dstEid` LZ-publishes to a spoke, burns `grsAmount`); the spoke `lzReceive` writes the row **and mints into escrow**. Mechanics: [§3 Token sales](#token-sales). Cap-table `grant` with a schedule and `dstEid ≠ 0` similarly LZ-publishes `GRS.grant` so the spoke opens a vest. LP & MM may still seed on home, then bridge.
 6. Votes live on home (or an EVM hub). Spoke GRS does not vote until bridged. Checkpoints do not copy across the bridge.
 
 Vendor is an implementation choice. Accounting is the spec.
@@ -111,7 +111,7 @@ Constructor mints 1B to `address(this)`, not the delegate. `grant` spends invent
 
 ### Who may `grant`
 
-Depends on `gateOf(bucket)`, not the cliff/duration args. Instant vs vest is `cliffSeconds = durationSeconds = 0`. Instant may set `dstEid` so the recipient is paid on a spoke.
+Depends on `gateOf(bucket)`, not the cliff/duration args. Instant vs vest is `cliffSeconds = durationSeconds = 0`. Instant may set `dstEid` so the recipient is paid on a spoke; scheduled grants may set `dstEid` so the spoke opens the vest.
 
 
 | Gate        | Buckets                                       | Caller       |
@@ -127,22 +127,21 @@ Depends on `gateOf(bucket)`, not the cliff/duration args. Instant vs vest is `cl
 
 **Accounting.** `spent[bucket] += amount` immediately (including still-locked vests). Over cap → `BucketExceeded`. No `revoke`.
 
-**Payout.** Instant, `dstEid = 0`: transfer from the contract, `vestingId = 0`. `to` must be an EVM address (high 12 bytes 0). Instant, `dstEid ≠ 0`: same spend, then OFT-send from inventory to `to` on that chain — `bytes32` (Solana pubkey as-is, EVM address left-padded). `quoteGrant` / LZ fee; dust-free amount. Vesting grants stay on home (`dstEid` must be 0); tokens stay on `GRS`, id ≥ 1, `funder = address(this)`. `start = 0` → now. Cliff end = `start + cliff`; linear until `cliffEnd + duration`. `duration = 0` unlocks all at cliff. Timestamp overflow → `InvalidSchedule`. Protocol `grant` is **not** bound by holder `MAX_CLIFF` / `MAX_DURATION` (team 60m / advisors 66m still fit). `scheduleOf` is SVG months for UIs; gated rows report `0/0`.
+**Payout.** Instant, `dstEid = 0`: transfer from the contract, `vestingId = 0`. `to` must be an EVM address (high 12 bytes 0). Instant, `dstEid ≠ 0`: same spend, then OFT-send from inventory to `to` on that chain — `bytes32` (Solana pubkey as-is, EVM address left-padded). Scheduled (`cliff` or `duration` ≠ 0), `dstEid ≠ 0`: burn inventory and LZ-publish `GRS.grant` so the spoke credits escrow and opens a local vest (`vestingId = 0` on home; spoke id is local). `quoteGrant(..., start, cliff, duration, bucket, dstEid)` / LZ fee; dust-free amount. Local vesting grants keep tokens on `GRS`, id ≥ 1, `funder = address(this)`. `start = 0` → now (on the chain that opens the vest). Cliff end = `start + cliff`; linear until `cliffEnd + duration`. `duration = 0` unlocks all at cliff. Timestamp overflow → `InvalidSchedule`. Protocol `grant` is **not** bound by holder `MAX_CLIFF` / `MAX_DURATION` on EVM (team 60m / advisors 66m still fit); Solana spoke grant still enforces holder maxes. `scheduleOf` is SVG months for UIs; gated rows report `0/0`.
 
 `**release(id)**` is permissionless to the beneficiary. Unreleased GRS cannot bridge.
 
-`getAllocations()` home-only (11 rows). `getVestings(offset, limit)` — 0-based offset, id = offset+1.
+`getAllocations()` home-only (11 rows). `getVestings(offset, limit)` — 0-based offset, id = offset+1; `UnknownVesting` if offset past book, `ZeroAmount` if `limit = 0`; short page ⇒ end (no `vestingCount`).
 
 ### Holder `vest`
 
-Any holder, home or spoke (EVM / Solana). Instant (cliff = duration = 0) reverts — use `transfer`. Cliff ≤ 365d, linear ≤ 4×365d. Solana: sequential id = `vesting_count + 1`; `get_vestings` remaining accounts are those PDAs.
+Any holder, home or spoke (EVM / Solana). Instant (cliff = duration = 0) reverts — use `transfer`. Cliff ≤ 365d, linear ≤ 4×365d. Solana: sequential id = `GrsConfig.vesting_count + 1`; `get_vestings` remaining accounts are those PDAs (`UnknownVesting` / `ZeroAmount` same as EVM; no count view).
 
 ### Token sales
 
-Public float from bucket **TokenSales** (Instant, no vest). Genesis **plan**: **100M TGE** + **50M Late Sale** after the protocol anniversary — [raise plan](https://docs.grindurus.xyz/grs/token-sales). On-chain the bucket is **uncapped** (`capOf = max`; `remaining` = escrow inventory): fee **buybacks** return GRS to TokenSales and can be relisted beyond the 150M plan. Public resale for Late Sale and recycled buybacks: a **discount** (ops-set).
+Public float from bucket **TokenSales** (Instant, no vest). Genesis **plan**: **100M TGE** + **50M Late Sale** after the protocol anniversary — [raise plan](https://docs.grindurus.xyz/grs/token-sales). On-chain the bucket is **uncapped** (`capOf = max`; `remaining` = `balanceOf(this) − vestingLocked`): fee **buybacks** return GRS to TokenSales and can be relisted beyond the 150M plan. Public resale for Late Sale and recycled buybacks: a **discount** (ops-set).
 
-The book can hold many rows: each is remaining GRS (`grsAmount`) and remaining asset (`assetAmount`). `buy` pays a share of `assetAmount` and receives GRS immediately. Home may also `grant(TokenSales, …)` (EVM only); `spent[TokenSales]` is accounting only (no hard 150M gate). Local listing (`dstEid = 0`) does not reserve inventory; listing to a spoke does.
-
+The book can hold many rows: each is remaining GRS (`grsAmount`) and remaining asset (`assetAmount`). `buy` pays a share of `assetAmount` and receives GRS immediately. Home may also `grant(TokenSales, …)` (EVM only); `spent[TokenSales]` is accounting only (no hard 150M gate). Local listing (`dstEid = 0`) does not move tokens but **requires** `grsAmount ≤ remaining(TokenSales)` (`InsufficientInventory`); listing to a spoke burns from that free float. Unreleased `grant`/`vest` escrow is tracked as `vestingLocked` and is not sellable.
 Home **LZ-publishes** the row with `sale(..., dstEid)`: home **burns** `grsAmount` from TokenSales inventory and the spoke `lzReceive` writes the row (`SaleAccepted`) **and mints that GRS into escrow**. Native `asset = 0` copies as native on every chain. `asset` and `recipient` are `bytes32` (EVM address left-padded; Solana mint / pubkey is already 32 bytes). On the wire `grsAmount` is OFT **shared decimals** (6); each chain stores local decimals.
 
 ```
@@ -152,7 +151,8 @@ spoke               lzReceive(sale payload)                           → mint e
 anyone              quoteSale(...) / previewBuy(id, grsAmount)
                     Solana: quote_sale(dstEid, id) / preview_buy(id, amount)
 anyone              buy(id, amount, to)   → quote in, GRS out
-anyone              getSales(offset, limit) / saleCount
+anyone              getSales(offset, limit) / previewBuy(id, amount) / buy(…)
+                      getSales: UnknownSale if offset past book; ZeroAmount if limit=0; short page ⇒ end
 ```
 
 LZ sale payload is 192 bytes: `keccak256("GRS.sale") || id || asset || assetAmount || grsAmountSD || recipient`.
@@ -194,7 +194,7 @@ Insufficient escrow reverts (ERC-20 / SPL). `buy` never mints.
 
 Genesis TokenSales inventory lives on **home**. A spoke sale is minted into escrow when home publishes the row (1:1 burn on home). Do not also grant the same TokenSales GRS on home. **Buybacks** (beneficiar / FeeVault market buys) deposit GRS back into home escrow and are intended to be relisted at a **discount** (same policy as Late Sale).
 
-`getSales(offset, limit)` — 0-based offset, id = offset+1. Empty page if `offset >= saleCount` or `limit = 0`.
+`getSales(offset, limit)` — 0-based offset, id = offset+1. Reverts `UnknownSale` if `offset` is past the book (`limit == 0` → `ZeroAmount`). A returned page shorter than `limit` is the end of the book (no `saleCount`).
 
 ### Foundation (200M)
 
@@ -216,7 +216,7 @@ Votes do not move custodian keys. GRS governs parameters and fee routing.
 
 **Cap-table releases (home):** `grant` is `owner` for every bucket (Instant / Linear / Proprietary). Target stack for **protocol** params still: `ERC20Votes` on home GRS (checkpoints follow `_update`, including OFT) + Governor + timelock as `GRAI.owner()` / `Grinders.owner()`. Spoke GRS does not vote. Proposal **0.1%** (1M GRS), quorum **4%** of past supply, delay **48h** params / **7d** upgrades.
 
-**Fees (default GRAI):** `treasuryCut` 33.33% of yield; `revenueShare` 5% affiliates; beneficiar net ≈ 30%. Stake GRS → `xGRS`; FeeVault streams stables/WETH pro-rata. Optional `veGRS` boosts votes. GRS never claims GRAI NAV or locker dividends. Intended fee surplus path: **market-buy GRS → TokenSales inventory → resale at a discount**.
+**Fees (default GRAI):** `treasuryCut` 33.33% of yield; `revenueShare` 5% affiliates; beneficiar net ≈ 30%. Stake GRS → `xGRS`; FeeVault streams stables/WETH pro-rata. GRS never claims GRAI NAV or locker dividends. Intended fee surplus path: **market-buy GRS → TokenSales inventory → resale at a discount**.
 
 **Not:** a deposit receipt (GRAI), operator license (Grinders NFT), affiliate right (GRAI-TREASURY NFT), or yield-minted token.
 
@@ -254,10 +254,10 @@ Until then live admin is [GRAI.md](https://docs.grindurus.xyz/developers/mechani
 
 | Surface            | Functions                                              | Caller             |
 | ------------------ | ------------------------------------------------------ | ------------------ |
-| Cap table (home)   | `grant`, `quoteGrant`, `getAllocations`, `setProprietor`, `setVeGRS` | owner              |
+| Cap table (home)   | `grant`, `quoteGrant`, `getAllocations`, `setProprietor` | owner              |
 | Token sales        | `sale`, `quoteSale`, `previewBuy`, `buy`                | owner / anyone     |
 | Vesting            | `vest`, `release`, `getVestings`                       | holder / anyone    |
-| Bridge (OFT)       | `bridge`, `quoteBridge`, `getPeers`                    | holder / anyone    |
+| Bridge (OFT)       | `bridge`, `quoteBridge`, `getPeers` (OFT `send` rejects compose / magic `to`) | holder / anyone    |
 | Votes (home hub)   | `transfer`, `delegate`                                 | holder             |
 
 
