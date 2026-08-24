@@ -4,7 +4,7 @@
 
 | | **GRAI** | **GRS** |
 | --- | --- | --- |
-| Role | Fund share | Protocol equity + gov |
+| Role | Fund capital | Protocol equity |
 | Supply | Elastic (NAV) | **1B** at genesis |
 | Mint after TGE | Yes (deposits) | **No** |
 
@@ -42,8 +42,6 @@ GRS governs protocol parameters and fee routing — not custodian keys:
 - GRAI `owner` (config, feeds, wiring)
 - Grinders `owner` (custodians, allocate policy)
 - Treasury via `GRAI.owner()` (beneficiar, affiliate weights)
-
-Target stack: **ERC20Votes** on home GRS + Governor + timelock.
 
 Spec: [GRS mechanics](https://docs.grindurus.xyz/developers/mechanics/grs)
 
