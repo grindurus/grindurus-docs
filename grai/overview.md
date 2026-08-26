@@ -31,7 +31,7 @@ On the first deposit (`totalValue == 0`), mint is 1:1 with USD value (1 GRAI ≈
 | `claim` | Locker | Asset dividends on unvoted locked GRAI |
 | `distribute` | Anyone | Report yield; split dividend / treasury |
 | `bribe` | Anyone | Buy voted GRAI for `settlementAsset` |
-| `liquidate` → `redeem` → `revive` | Holders / anyone | Shutdown, pro-rata basket, restart |
+| `liquidate` → `redeem` → `revive` | Holders / anyone | Shutdown (quorum + stale Grinders heartbeat), pro-rata basket, restart |
 
 ## Implementations
 

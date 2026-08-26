@@ -45,11 +45,21 @@ Solana: swap CPI via Grinders program; Jupiter / LiFi custody paths in migration
 
 | Role | Powers |
 | ---- | ------ |
-| **Grinders owner** | `set`, `mint`, `allocate`, `deallocate`, `confirm` (liquidation arm) |
+| **Grinders owner** | `set`, `mint`, `allocate`, `deallocate`, `distribute`, `setGrindPeriod` |
 | **NFT owner** | Run swaps on that custodian |
-| **Anyone** | — |
+| **GRAI** | `heartbeat` (on `revive`) |
 
 During liquidation: custodian trading blocked; `Grinders.liquidate` sweeps wallets to GRAI / reserve.
+
+## Heartbeat gate
+
+Grinders no longer uses a manual `confirm` flag for liquidation.
+Instead, liquidation depends on an implicit heartbeat:
+
+- `heartbeatAt` stores the last operational activity timestamp.
+- `grindingPeriod` defines how long Grinders is considered active.
+- `grinding()` is true while `block.timestamp <= heartbeatAt + grindingPeriod`.
+- GRAI can open liquidation only when quorum is reached **and** `!grinding()`.
 
 ## NFT metadata
 
