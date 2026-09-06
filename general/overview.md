@@ -123,7 +123,7 @@ If nobody qualifies for dividends (`totalLocked == totalVoted`), the dividend cu
 
 ### Revenue flow
 
-Per **100** of reported yield (illustrative; defaults above). Affiliate L1/L2 is **80/20** of the 5% revenue-share pool. The beneficiar remainder (~45 of gross) is **net profit**; buybacks are an intended use of that cut (~30 of gross), not a separate on-chain cut.
+Per **100%** of reported yield (illustrative; GRAI defaults above): **Dividends 50%** and **Treasury 50%** at `distribute`. On locker `claim`, the treasury cut splits into **Affiliates 5%** of gross (L1/L2 **80/20** → **4%** / **1%**) and **Gross Profit 45%** to `beneficiar`. Of that net, **GRS Buyback ~30%** of gross is an intended ops use — **not** a separate on-chain cut — leaving **Net Profit ~15%** retained.
 
 ```mermaid
 ---
@@ -131,17 +131,18 @@ config:
   sankey:
     showValues: true
     linkColor: gradient
+    suffix: "%"
 ---
 sankey-beta
 
-Revenue,Dividends,50%
-Revenue,Treasury,50%
-Treasury,Affiliates,5%
-Treasury,Gross Profit,45%
-Affiliates,L1 referrer,4%
-Affiliates,L2 referrer,1%
-Gross Profit,GRS Buyback,30%
-Gross Profit,Net Profit ,15%
+Revenue 100%,Dividends 50%,50
+Revenue 100%,Treasury 50%,50
+Treasury 50%,Affiliates 5%,5
+Treasury 50%,Gross Profit 45%,45
+Affiliates 5%,L1 referrer 4%,4
+Affiliates 5%,L2 referrer 1%,1
+Gross Profit 45%,GRS Buyback 30%,30
+Gross Profit 45%,Net Profit 15%,15
 ```
 
 
