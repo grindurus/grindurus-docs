@@ -7,6 +7,7 @@
 
 * [Manifesto](general/manifesto.md)
 * [Overview](general/overview.md)
+* [Fundraising concepts](general/fundraising-concepts.md)
 
 ## Protocol
 
