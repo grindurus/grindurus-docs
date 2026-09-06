@@ -134,14 +134,14 @@ config:
 ---
 sankey-beta
 
-Yield (distribute),Unvoted lockers,50
-Yield (distribute),Treasury,50
-Treasury,Affiliates,5
-Treasury,Beneficiar (net profit),45
-Affiliates,L1 referrer,4
-Affiliates,L2 referrer,1
-Beneficiar (net profit),GRS market buyback,30
-Beneficiar (net profit),Net profit retained,15
+Revenue,Dividends,50%
+Revenue,Treasury,50%
+Treasury,Affiliates,5%
+Treasury,Gross Profit,45%
+Affiliates,L1 referrer,4%
+Affiliates,L2 referrer,1%
+Gross Profit,GRS Buyback,30%
+Gross Profit,Net Profit ,15%
 ```
 
 
