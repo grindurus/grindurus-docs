@@ -8,6 +8,45 @@
 - **Affiliate payouts** on locker `claim`
 - **`beneficiar`** — net remainder (target: GRS FeeVault)
 
+## Revenue distribution
+
+Per **100** of reported yield (GRAI defaults: `dividendCutBps` / `treasuryCutBps` = 50/50, `revenueShareBps` = 5%). Affiliate L1/L2 weights are **80/20** of the revenue-share pool.
+
+On-chain split has two stages:
+
+1. **`distribute`** — yield → dividend reserve (lockers) + Treasury inventory.
+2. **`claim`** — when lockers take dividends, Treasury pays affiliates from inventory and sends the rest to `beneficiar`.
+
+Buybacks are an **intended ops use** of beneficiar net (~30 of gross), not a separate on-chain cut.
+
+```mermaid
+---
+config:
+  sankey:
+    showValues: true
+    linkColor: gradient
+    suffix: "%"
+---
+sankey-beta
+
+Revenue 100%,Dividends 50%,50
+Revenue 100%,Treasury 50%,50
+Treasury 50%,Affiliates 5%,5
+Treasury 50%,Gross Profit 45%,45
+Affiliates 5%,L1 referrer 4%,4
+Affiliates 5%,L2 referrer 1%,1
+Gross Profit 45%,GRS Buyback 30%,30
+Gross Profit 45%,Net Profit 15%,15
+```
+
+| Slice | Default | When |
+| ----- | ------- | ---- |
+| Dividend cut | 50% of yield | Accrues to unvoted lockers; paid on `claim` |
+| Treasury cut | 50% of yield | Lands in Treasury on `distribute` |
+| Revenue share | 5% of yield | Paid to L1/L2 on locker `claim` (80/20) |
+| Beneficiar | ~45% of gross | Remainder after affiliates |
+| Claim tip | 1% of claimed asset | Paid to claim caller (out of locker payout; not shown above) |
+
 ## Referrer vs cashflow NFT
 
 Two independent layers:

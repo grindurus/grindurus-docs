@@ -104,8 +104,7 @@ The public app exposes a paid backtest calculator at [app.grindurus.xyz/backtest
 
 | Repo | Role |
 | ---- | ---- |
-| `grindurus-ecosystem/grindurus-gateway` | Edge reverse proxy |
-| `grindurus-ecosystem/grindurus-klines-service` | Candle data |
-| `grindurus-ecosystem/grindurus-backtest-service` | Backtest API |
+| `gateway` | Edge reverse proxy |
+| `grindurus-backtest-service` | Backtest API + OHLCV/klines (`klines/`) |
 
 On-chain fund and token detail: [General overview](../general/overview.md) · [GRAI](../grai/overview.md) · [Grinders](../grinders/overview.md).

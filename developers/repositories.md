@@ -7,10 +7,10 @@ Grindurus is a **multi-repo product** under [github.com/grindurus](https://githu
 | **grindurus-protocol** | GrindURUS strategy, Grinder, Boss, `adapters/`, Docker, Boss UI |
 | **grindurus-evm** | Solidity: GRAI, Grinders, Treasury, GRS, custodians |
 | **grindurus-solana** | Anchor: grai, grinders, grs, lifi_custody |
-| **grindurus-app** | Protocol app ([app.grindurus.xyz](https://app.grindurus.xyz)) |
-| **grindurus-landing** | Marketing site ([grindurus.xyz](https://grindurus.xyz)) |
+| **grindurus-app** | Protocol app + marketing landing ([grindurus.xyz](https://grindurus.xyz)) |
 | **grindurus-docs** | This GitBook (docs.grindurus.xyz) |
-| **grindurus-ecosystem** | Gateway, klines, backtest service |
+| **gateway** | Edge reverse proxy (Traefik) |
+| **grindurus-backtest-service** | Backtest API + in-process klines/OHLCV |
 
 Local workspace often clones all trees as siblings under one `grindurus/` folder.
 
