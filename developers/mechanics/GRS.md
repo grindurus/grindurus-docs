@@ -148,10 +148,10 @@ Home **LZ-publishes** the row with `sale(..., dstEid)`: home **burns** `grsAmoun
 home owner          sale(asset, assetAmount, grsAmount, recipient, dstEid)
                       → id = saleCount+1; SaleSet; dstEid ≠ 0 also SalePublished
 spoke               lzReceive(sale payload)                           → mint escrow; SaleAccepted
-anyone              quoteSale(...) / previewBuy(id, grsAmount)
-                    Solana: quote_sale(dstEid, id) / preview_buy(id, amount)
+anyone              quoteSale(...) / quoteBuy(id, grsAmount)
+                    Solana: quote_sale(dstEid, id) / quote_buy(id, amount)
 anyone              buy(id, amount, to)   → quote in, GRS out
-anyone              getSales(offset, limit) / previewBuy(id, amount) / buy(…)
+anyone              getSales(offset, limit) / quoteBuy(id, amount) / buy(…)
                       getSales: UnknownSale if offset past book; ZeroAmount if limit=0; short page ⇒ end
 ```
 
@@ -255,7 +255,7 @@ Until then live admin is [GRAI.md](https://docs.grindurus.xyz/developers/mechani
 | Surface            | Functions                                              | Caller             |
 | ------------------ | ------------------------------------------------------ | ------------------ |
 | Cap table (home)   | `grant`, `quoteGrant`, `getAllocations`, `setProprietor` | owner              |
-| Token sales        | `sale`, `quoteSale`, `previewBuy`, `buy`                | owner / anyone     |
+| Token sales        | `sale`, `quoteSale`, `quoteBuy`, `buy`                  | owner / anyone     |
 | Vesting            | `vest`, `release`, `getVestings`                       | holder / anyone    |
 | Bridge (OFT)       | `bridge`, `quoteBridge`, `getPeers` (OFT `send` rejects compose / magic `to`) | holder / anyone    |
 | Votes (home hub)   | `transfer`, `delegate`                                 | holder             |

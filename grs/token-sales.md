@@ -114,8 +114,8 @@ Anyone calls `buy(id, grsAmount, to)`:
 
 Previews:
 
-- EVM: `previewBuy(id, grsAmount)`
-- Solana: `preview_buy(id, amount)`
+- EVM: `quoteBuy(id, grsAmount)`
+- Solana: `quote_buy(id, amount)`
 - LZ fee quote: `quoteSale(asset, …, dstEid)` / `quote_sale(dst_eid, id)`
 
 ## Limits

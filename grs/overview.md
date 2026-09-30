@@ -19,7 +19,7 @@ Metadata: [grs.json](https://grindurus.xyz/grs.json) · ERC-1046 `tokenURI`
 
 ## Home vs spokes
 
-One **home** chain (Solana or Ethereum, fixed at TGE) mints the entire **1B once**. Every other deployment is a **spoke**: bridged representation via LayerZero, not a second genesis.
+One **home** chain (Solana or Ethereum, fixed at TGE) mints the entire **1B once** (`homeAddress == 0` / Solana `home_address == default`). Every other deployment is a **spoke** (non-zero `homeAddress` pointing at the home identity): bridged representation via LayerZero, not a second genesis.
 
 Changing home is a **migration** (new lockboxes), not a remint.
 
@@ -28,7 +28,7 @@ Changing home is a **migration** (new lockboxes), not a remint.
 | Area | Functions | Who |
 | ---- | --------- | --- |
 | Cap table (home) | `grant`, `quoteGrant`, `getAllocations` | owner |
-| Sales | `sale`, `previewBuy`, `buy`, `quoteSale` | owner / anyone — plan: [Token sales](https://docs.grindurus.xyz/grs/token-sales) (TGE 10% @ $20M FDV; Late Sale + buyback resales at a discount) |
+| Sales | `sale`, `quoteBuy`, `buy`, `quoteSale` | owner / anyone — plan: [Token sales](https://docs.grindurus.xyz/grs/token-sales) (TGE 10% @ $20M FDV; Late Sale + buyback resales at a discount) |
 | Vesting | `vest`, `release`, `getVestings` | holder / anyone |
 | Bridge | `bridge`, `quoteBridge`, `getPeers` | holder |
 | Votes (home) | `transfer`, `delegate` | holder |
