@@ -27,7 +27,7 @@ holder  →  lock()  →  locker (unvoted)  →  vote()  →  voter  ←  bribe(
 
 **Exit paths (no open-market redeem while live)**
 
-1. `unlock` — return locked GRAI to the wallet (clamps `voted ≤ amount`); early unlock penalty stays on GRAI as orphan/dead inventory (scooped to the liquidation opener via `balanceOf(this) − totalLocked`).
+1. `unlock` — return locked GRAI to the wallet (clamps `voted ≤ amount`); flat unlock penalty is sent to **Grinders**.
 2. `bribe` — buy out **voted** GRAI for `settlementAsset` at a dynamic ask vs half-quorum (premium / par / discount).
 3. **Secondary market** — sell free (unlocked) wallet GRAI OTC / CEX / DEX; protocol does not provide a live redeem.
 4. **Liquidation** — `Regime { GRINDING, REDEMPTION }`. Open is **2-of-2**: `hasQuorum()` on `GRAI.liquidate` **and** `Grinders.confirmed`. Arm via `grinders.owner()` `confirm()`. Open flips `regime = REDEMPTION` **before** nested sweeps so `Grinders.liquidate` can require `grai.liquidation()` (no GRINDING-time sweeps). After `liquidationPeriod` holders `redeem` → after `+ redeemPeriod` anyone `revive` → `GRINDING` (clears arm). Hard sweep failure aborts open (rolls regime back). Voters alone cannot open.
@@ -133,7 +133,7 @@ sequenceDiagram
 | 1    | `deposit(asset, amount, lock)`  | Asset → Grinders; mint at book; optional escrow                                                                                                  |
 | 2    | Or later `lock(graiAmount)`     | Escrow wallet GRAI; dividend-eligible while unvoted (flat unlock fee — lock time does not change cost) |
 | 3    | Accrue / `claim(holder, asset)` | Receive yield-asset dividends (allowed in liquidation — reserve ≠ redeem basket)                                                                 |
-| 4    | `unlock(graiAmount)`            | Accrue, flat unlock fee stays on GRAI (dead), clamp votes, return net                                                                            |
+| 4    | `unlock(graiAmount)`            | Accrue, flat unlock fee → Grinders, clamp votes, return net                                                                                      |
 | 5    | Optional `vote`                 | See Voter — voted share stops earning dividends                                                                                                  |
 
 
@@ -240,7 +240,7 @@ sequenceDiagram
     Note over V,G: amount - voted leaves dividend base
 
     alt Exit via unlock
-        V->>G: unlock[graiAmount] clamps voted - penalty stays on GRAI as dead
+        V->>G: unlock[graiAmount] clamps voted - penalty → Grinders
     else Exit via bribe
         B->>G: bribe[voter, amount]
         G->>V: voterShare in settlementAsset
@@ -255,7 +255,7 @@ sequenceDiagram
 | ---- | ------------------ | ----------------------------------------------------------------------------------------------------- |
 | 1    | `vote(graiAmount)` | Auto-lock shortfall; `voted ≤ amount`; `totalVoted` ↑; dividend base ↓                                |
 | 2    | Quorum             | `totalVoted / supply > quorumBps` (strict) — necessary but not sufficient for open (needs owner limb) |
-| 3a   | `unlock`           | Excess votes clamped; net GRAI returned; unlock fee stays on GRAI as dead                             |
+| 3a   | `unlock`           | Excess votes clamped; net GRAI returned; unlock fee sent to Grinders                                  |
 | 3b   | `bribe`            | Full `graiAmount` sold for exact `bribeAmount` in `settlementAsset` (non-FoT)                         |
 | 3c   | `liquidate`        | Anyone: `regime == GRINDING` + `hasQuorum()`; flip `REDEMPTION` then `grinders.liquidate` (`confirmed` + regime) |
 
@@ -479,8 +479,9 @@ if (lock) lock(graiOut)
 
 - **Book** = `totalValue / totalSupply`.
 - **Liquidation basket** = pro-rata of `_redeemable` on GRAI after sweeps (excludes `totalClaimable`).
-Share denominator is `totalSupply`. Orphan/dead GRAI still on the contract dilutes redeemers and
-leaves a residual book slice (live unlock-fee orphans are sent to the opener / `msg.sender` when liquidation opens).
+Share denominator is `totalSupply`. Stray GRAI still on the GRAI contract dilutes redeemers and
+leaves a residual book slice (scooped to the opener / `msg.sender` when liquidation opens). Unlock
+penalties are sent to Grinders on `unlock` and are not part of that scoop.
 - New deposits dilute quorum until voters re-commit.
 - After `revive`, `totalValue` is **not** marked to leftover basket NAV — post-redeem book is kept so mint stays ~$1/GRAI; if `supply == 0`, `totalValue = 0`.
 
@@ -506,17 +507,18 @@ unvoted   = locked − voted             // dividend-eligible slice; Σ → tota
 Protocol totals:
 
 ```
-totalSupply   = free (all wallets) + totalLocked + orphan/dead on GRAI
-                // orphan = balanceOf(this) − totalLocked (unlock fees, stray transfers)
+totalSupply   = free (all wallets) + totalLocked + stray on GRAI + Grinders-held GRAI
+                // stray on GRAI = balanceOf(this) − totalLocked (accidental transfers, etc.)
+                // unlock penalties live as free GRAI on Grinders, not on GRAI
 eligible      = totalLocked − totalVoted   // = Σ unvoted — dividend index denominator
 ```
 
 - **Free → locked:** `lock`, or auto-lock shortfall inside `vote`.
-- **Locked → free:** `unlock` (net after penalty); `bribe` sends full `graiAmount` to the **briber** wallet (still free until they lock).
+- **Locked → free:** `unlock` (net after penalty → wallet; penalty → Grinders); `bribe` sends full `graiAmount` to the **briber** wallet (still free until they lock).
 - **Unvoted → voted:** `vote` (no extra GRAI if already locked).
 - **Voted → unvoted:** only by shrinking `voted` (unlock clamp when `voted > locked`, or bribe reducing both).
 
-Liquid wallet GRAI never earns yield. Fully voted escrow (`locked == voted`) earns none on new cuts. Orphan/dead GRAI on the contract is not free to a user and not in `eligible` until scooped to the liquidation opener.
+Liquid wallet GRAI never earns yield. Fully voted escrow (`locked == voted`) earns none on new cuts. Stray GRAI still on the GRAI contract is not free to a user and not in `eligible` until scooped to the liquidation opener. Unlock-penalty GRAI on Grinders is ordinary free balance (does not earn dividends).
 
 ---
 
@@ -576,7 +578,7 @@ Switching requires a feed; open votes/auctions do not block. Setting `settlement
 ### 8.1 Lock / unlock
 
 - `lock` — escrow GRAI; dividend eligibility on the unvoted portion (including vote shortfall). Unlock fee is flat and does not depend on lock time.
-- `unlock(graiAmount)` — accrue dividends, **flat** unlock fee stays on GRAI as orphan/dead (`balanceOf(this) − totalLocked`, scooped at liquidation open), clamp `voted ≤ amount`, return net GRAI. Yield claims are separate (`claim` / `claimAll`).
+- `unlock(graiAmount)` — accrue dividends, **flat** unlock fee sent to **Grinders**, clamp `voted ≤ amount`, return net GRAI. Yield claims are separate (`claim` / `claimAll`).
 - Unlock penalty: always `unlockPenaltyBps` (default **10%**) of `graiAmount` — no time decay (`penalty = ceil(graiAmount * unlockPenaltyBps / BPS)` in `previewUnlock`).
 - Dust floor (intentional, matches `previewUnlock`): while penalty > 0, **every** unlock — including full-escrow exit (`graiAmount == locked`) — must be ≥ `graiDust = ceil(BPS / unlockPenaltyBps)` (e.g. 10 GRAI wei at 10%, 100 wei at 1%). A legal partial unlock may leave `locked < graiDust`; that remainder cannot `unlock` until the locker tops up, `unlockPenaltyBps` is set to 0, or they exit via liquidation `redeem`. Not a stuck-funds bug.
 - Unlock reduces lock first; vote is clamped only if `voted > amount` afterward.
@@ -727,7 +729,7 @@ State machine on GRAI: `enum Regime { GRINDING, REDEMPTION }`. Compatibility vie
 
 | Caller | Behavior |
 | ---- | ---- |
-| **Anyone** | If `GRINDING` + `hasQuorum()`: scoop orphan/dead GRAI → opener; set `REDEMPTION` + `liquidationAt`; then `grinders.liquidate(0, max)` + `(0, 0)`. Sweep hard-fail rolls the regime flip back. |
+| **Anyone** | If `GRINDING` + `hasQuorum()`: scoop stray/orphan GRAI on GRAI → opener; set `REDEMPTION` + `liquidationAt`; then `grinders.liquidate(0, max)` + `(0, 0)`. Unlock penalties already live on Grinders and are not scooped here. Sweep hard-fail rolls the regime flip back. |
 | **`grinders.owner()`** | `confirm()` arms/disarms only — does **not** set `regime` and cannot sweep until open. |
 
 Open-time sweeps: no try/catch on GRAI. `!confirmed` or a **hard** failure of `Grinders.liquidate` aborts the whole open (regime stays `GRINDING`). Inside Grinders, per-custodian pulls are still `try/catch`’d (a single sleeve revert is skipped; idle flush / other sleeves may still succeed).
@@ -741,7 +743,7 @@ After open, live paths gated with `_requireRegime(GRINDING)` are blocked (`depos
 ### 9.4 Redeem (`regime = REDEMPTION`, after delay)
 
 After delay: snapshot `previewRedeem` (frozen vector); burn wallet then escrow; `totalValue` book burn; pay that vector.
-Pro-rata denominator is `totalSupply` (orphan still on GRAI dilutes redeemers; live orphans are flushed to the opener at open).
+Pro-rata denominator is `totalSupply` (stray still on GRAI dilutes redeemers; live stray is flushed to the opener at open). Unlock-penalty GRAI on Grinders is free balance held by Grinders.
 `nonReentrant` — nested redeem via ETH/ERC777 callbacks must not skim later assets. Clamp vote before dividend debt sync when reducing escrow.
 
 **Example** (Alice redeems after consolidation):
@@ -1146,7 +1148,7 @@ Full write-up: [GRINDERS.md](https://docs.grindurus.xyz/developers/mechanics/gri
 | `claimTipBps`       | 1_00 (1%)       | Slice of claimed dividend to `msg.sender`              |
 | `bribePremiumBps`   | 2_00 (2%)       | Bribe ask slope vs half-quorum                         |
 | `quorumBps`         | 66_67 (66.67%)  | Strict: `voted/supply > quorumBps` to open liquidation |
-| `unlockPenaltyBps`  | 10_00 (10%)     | Flat unlock penalty (stays on GRAI as dead)            |
+| `unlockPenaltyBps`  | 10_00 (10%)     | Flat unlock penalty (sent to Grinders)                 |
 | `liquidationPeriod` | 24 hours        | Delay before `redeem` (must be `> 0`)                  |
 | `redeemPeriod`      | 7 days          | Window before `revive` (must be `> 0`)               |
 
@@ -1204,7 +1206,7 @@ Treasury: `mint` / `distribute` = linked GRAI only; `setBeneficiar` / `setRoyalt
 10. **FoT** — deposit/`distribute` size economics from credited `_pay`; `settlementAsset` is **non-FoT** (exact credit required; full `graiAmount` out).
 11. `revive` does not reprice `totalValue` from leftover NAV (keeps ~$1/GRAI); zeroes book only when `supply == 0`. Deposit bootstrap when `totalValue == 0`.
 12. `address(this)` **is never a listed / redeemable / bribe asset** — escrow stays escrow.
-13. **Unlock penalty → dead GRAI** — flat `unlockPenaltyBps` (no time decay); penalty is not sent to treasury; scooped to liquidation opener (`balanceOf(this) − totalLocked`). Dust floor `ceil(BPS / unlockPenaltyBps)` applies to full-escrow exit; remainder below dust stays until lock grows, fee is 0, or liquidation redeem.
+13. **Unlock penalty → Grinders** — flat `unlockPenaltyBps` (no time decay); penalty GRAI is transferred to Grinders (not Treasury, not left dead on GRAI). Dust floor `ceil(BPS / unlockPenaltyBps)` applies to full-escrow exit; remainder below dust stays until lock grows, fee is 0, or liquidation redeem.
 14. **Self-bribe allowed** — `briber == voter` is valid. Voted exit uses the bribe ask (incl. at-par round-trip with 0 premium/discount); `unlockPenaltyBps` / dust floor apply only to `unlock`, not to `bribe`.
 15. **Affiliates ≠ locker cut** — claim tip / locker payout are independent of Treasury; affiliates pay from Treasury inventory sized by `revenueShareBps`.
 16. **Treasury distribute is all-or-nothing** — `bal < grossProfitShare` → no affiliate / beneficiar transfer for that claim.

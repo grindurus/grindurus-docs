@@ -11,7 +11,7 @@
 
 `unlock(graiAmount)` returns net GRAI to the wallet.
 
-- Flat penalty (`unlockPenaltyBps`, default **1%**) stays on GRAI as **dead** inventory (not sent to Treasury).
+- Flat penalty (`unlockPenaltyBps`, default **1%**) is sent to **Grinders** (not Treasury, not left dead on GRAI).
 - `previewUnlock` returns `(net, penalty)`.
 - While penalty > 0, tiny unlock amounts below the dust floor revert.
 

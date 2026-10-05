@@ -17,6 +17,8 @@ Report derived from on-chain logic in [`Grinders.sol`](https://github.com/grindu
 
 GRAI mints shares against book; **working capital that earns yield lives in Grinders → custodian wallets**. Yield does **not** change `GRAI.totalValue` until it is reported through `GRAI.distribute` (auction / dividends / treasury).
 
+Separately, `GRAI.unlock` transfers the flat unlock penalty (`unlockPenaltyBps`) as **GRAI ERC20** onto Grinders. That balance is ordinary free GRAI held by the Grinders contract — not junior capital, not distributable yield, and not part of the allocate ledger.
+
 ```
 Users ──deposit──► GRAI ──assets──► Grinders reserve
                                       │
@@ -32,6 +34,8 @@ Users ──deposit──► GRAI ──assets──► Grinders reserve
                     │                                   │
                     ▼                                   ▼
               GRAI cuts                           Grinders reserve
+
+Users ──unlock──► GRAI ──penalty GRAI──► Grinders (free GRAI balance)
 ```
 
 ---

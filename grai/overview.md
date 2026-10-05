@@ -26,7 +26,7 @@ On the first deposit (`totalValue == 0`), mint is 1:1 with USD value (1 GRAI ≈
 | Flow | Who | Summary |
 | ---- | --- | -------- |
 | `deposit` | Anyone | Asset → Grinders; mint GRAI; optional lock |
-| `lock` / `unlock` | Holder | Escrow GRAI; unlock pays flat penalty (dead GRAI on contract) |
+| `lock` / `unlock` | Holder | Escrow GRAI; unlock pays flat penalty to Grinders |
 | `vote` | Holder | Quorum toward liquidation; auto-locks shortfall |
 | `claim` | Locker | Asset dividends on unvoted locked GRAI |
 | `distribute` | Anyone | Report yield; split dividend / treasury |

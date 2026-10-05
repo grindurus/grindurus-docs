@@ -51,6 +51,10 @@ Solana: swap CPI via Grinders program; Jupiter / LiFi custody paths in migration
 
 During liquidation: custodian trading blocked; `Grinders.liquidate` sweeps wallets to GRAI / reserve.
 
+## Unlock penalties
+
+`GRAI.unlock` sends the flat unlock fee (`unlockPenaltyBps`) as **GRAI tokens** to the Grinders contract. Grinders holds that balance as ordinary ERC20 inventory (not yield, not allocate ledger). It is separate from junior capital assets.
+
 ## Heartbeat gate
 
 Grinders no longer uses a manual `confirm` flag for liquidation.

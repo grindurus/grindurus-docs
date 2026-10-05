@@ -41,9 +41,11 @@ After `liquidationPeriod + redeemPeriod`, anyone may call **`revive`**:
 
 Unclaimed dividend reserve stays on GRAI.
 
-## Dead GRAI
+## Unlock penalty → Grinders
 
-Unlock penalties and orphan escrow sit as `balanceOf(GRAI) − totalLocked`. The **liquidation opener** scoops this dead inventory on open.
+Flat unlock fee (`unlockPenaltyBps`) is transferred to the **Grinders** contract on every `unlock`. It is ordinary GRAI held by Grinders (not yield inventory, not escrow).
+
+Stray/orphan GRAI that somehow remains on GRAI (`balanceOf(GRAI) − totalLocked`, e.g. accidental transfers) is still scooped by the **liquidation opener** on open — unlock penalties are **not** part of that scoop.
 
 ## Timeline (conceptual)
 
