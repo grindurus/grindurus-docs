@@ -7,7 +7,8 @@
 | Group | Share | GRS | Notes |
 | ----- | ----- | --- | ----- |
 | **Investments** | 20% | 200M | |
-| → Token sales | 15% | 150M* | Instant — `buy` / optional `grant`. **10% TGE** @ $20M FDV (ETH+SOL rows); **5% Late Sale** after protocol anniversary at a **discount**. Fee buybacks re-enter TokenSales and resell at the same discount policy. See [Token sales](https://docs.grindurus.xyz/grs/token-sales) |
+| → Token sales | 10% | 100M* | Instant — `buy` / optional `grant`. **TGE** @ $20M FDV (ETH+SOL rows). See [Token sales](https://docs.grindurus.xyz/grs/token-sales) |
+| → IDOs | 5% | 50M* | Instant — Initial DEX Offerings. Display carve from the TokenSales soft plan (same on-chain inventory); listed via `sale` / `buy` |
 | → Pre-seed | 5% | 50M | **$1M USDC** @ $0.02 ($20M FDV). Linear, 24m after TGE |
 | **Affiliates & airdrops** | 20% | 200M | |
 | → Revenue Share | 15% | 150M | Proprietary, ops |
@@ -35,14 +36,15 @@ All cap-table **`grant`** calls are **`onlyOwner`** on home.
 
 ## TGE free float (M0)
 
-~**150M (15%)** immediately liquid if only the TGE sales slice is listed:
+~**200M (20%)** immediately liquid if TGE sales, IDOs, and Foundation proprietary float are listed:
 
 - **100M** Token sales (10% TGE rows)
+- **50M** IDOs (5%)
 - **50M** Foundation proprietary float
 
-**50M** (5%) stays in TokenSales inventory for the **Late Sale** (after the protocol anniversary, discount). Pre-seed **50M** is locked (24m linear).
+Pre-seed **50M** is locked (24m linear).
 
-\* Genesis **150M** TokenSales plan; on-chain the bucket is uncapped so fee **buybacks** can re-enter escrow and be relisted at a **discount**.
+\* Genesis **150M** TokenSales soft plan = Token sales **100M** + IDOs **50M**. On-chain the bucket is uncapped so fee **buybacks** can re-enter escrow and be relisted at a **discount**. IDOs are **not** a separate on-chain `Bucket` — cap-table display only.
 
 ## Holder vesting
 

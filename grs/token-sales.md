@@ -1,19 +1,19 @@
 # Token sales
 
-Public float from the **TokenSales** bucket: **150M GRS (15%)**, Instant gate, no vest.
+Public float from the **TokenSales** bucket soft plan: **150M GRS (15%)**, Instant gate, no vest — **10%** TGE sales + **5%** IDOs (cap-table display carve; same on-chain inventory).
 
 | Slice | Share | GRS | When | Pricing |
 | ----- | ----- | --- | ---- | ------- |
 | **TGE sales** | 10% | 100M | At / around TGE | Flat **$0.02** → **$20M FDV** |
-| **Late Sale** | 5% | 50M | After the protocol anniversary | **discount** |
+| **IDOs** | 5% | 50M | Initial DEX Offerings | Ops-set listing via `sale` / `buy` |
 
 Pre-seed is a separate bucket (5%, $1M USDC, 24m linear) — see [Cap table](https://docs.grindurus.xyz/grs/cap-table).
 
 ## Raise plan (target)
 
-![GRS raise plan: Pre-seed, TGE sales, Late Sale](./token-sales.png)
+![GRS raise plan: Pre-seed, TGE sales, IDOs, fee buyback](./token-sales.png)
 
-Source: [token-sales.svg](./token-sales.svg) · PNG: [token-sales.png](./token-sales.png)
+Source: [token-sales.svg](./token-sales.svg)
 
 Supply **1B GRS**. TGE anchor: **$20M FDV** ↔ **$0.02 / GRS**.
 
@@ -48,17 +48,7 @@ Round 1 is one **5%** tranche as **two USDC rows** (2.5% on Ethereum + 2.5% on S
 
 Quote mint / native asset per row is set when the owner calls `sale`.
 
-### Late Sale — remaining 5% (50M)
-
-| | |
-| --- | --- |
-| Allocation | **5%** left in TokenSales after TGE |
-| Timing | **After the protocol anniversary** (not before year one) |
-| Price | **discount** |
-| Unlock | Instant (same TokenSales gate), unless a vest is added later by policy |
-| Raise | Depends on spot and the chosen discount |
-
-Public framing: **Late Sale** after anniversary — not a second pre-seed.
+**50M** (5%) is the **IDOs** slice (Initial DEX Offerings) — same TokenSales on-chain inventory, separate row on the [cap table](https://docs.grindurus.xyz/grs/cap-table).
 
 ## After TGE — fee buyback → TokenSales
 
@@ -66,7 +56,7 @@ Protocol yield (`GRAI.distribute`) splits ~50% dividends / ~50% treasury. After 
 
 Buybacks use the **protocol cut**, not the locker dividend cut.
 
-**Recycle:** purchased GRS are returned to **TokenSales** escrow inventory (EVM `address(this)` / Solana `sale_escrow`). On-chain TokenSales is **uncapped** for this path — buybacks can re-enter the book beyond the genesis 150M plan. Ops then list them again with `sale` / `buy` at a **discount** (ops-set; same policy as Late Sale). Fee surplus buys spot and re-offers protocol equity below market.
+**Recycle:** purchased GRS are returned to **TokenSales** escrow inventory (EVM `address(this)` / Solana `sale_escrow`). On-chain TokenSales is **uncapped** for this path — buybacks can re-enter the book beyond the genesis 150M plan. Ops then list them again with `sale` / `buy` at a **discount** (ops-set). Fee surplus buys spot and re-offers protocol equity below market.
 
 ## Book model
 
@@ -82,7 +72,7 @@ Each sale row has:
 
 Row **closes** when either remainder hits zero.
 
-TGE calendar above = up to **four** rows from the 100M slice; Late Sale = one or more later rows from the remaining 50M (after anniversary).
+TGE calendar above = up to **four** rows from the 100M TGE slice. IDOs and buybacked GRS are listed as further `sale` rows when ops chooses.
 
 ## Home lists, spoke sells
 
@@ -120,11 +110,11 @@ Previews:
 
 ## Limits
 
-- Genesis plan **150M** TokenSales float (TGE + Late Sale); on-chain bucket is **uncapped** so buybacks can re-enter inventory.
+- Genesis soft plan **150M** TokenSales float (TGE **100M** + IDOs **50M**); on-chain bucket is **uncapped** so buybacks can re-enter inventory.
 - Buybacked GRS → TokenSales escrow → relist at a **discount**.
 - `buy` never mints — only transfers from escrow.
 - Do not `grant(TokenSales)` and LZ-publish the same GRS twice.
-- Late Sale / buyback-resale price is an ops-set **discount** to market.
+- Buyback-resale price is an ops-set **discount** to market.
 
 ## App
 

@@ -28,7 +28,7 @@ Changing home is a **migration** (new lockboxes), not a remint.
 | Area | Functions | Who |
 | ---- | --------- | --- |
 | Cap table (home) | `grant`, `quoteGrant`, `getAllocations` | owner |
-| Sales | `sale`, `quoteBuy`, `buy`, `quoteSale` | owner / anyone — plan: [Token sales](https://docs.grindurus.xyz/grs/token-sales) (TGE 10% @ $20M FDV; Late Sale + buyback resales at a discount) |
+| Sales | `sale`, `quoteBuy`, `buy`, `quoteSale` | owner / anyone — plan: [Token sales](https://docs.grindurus.xyz/grs/token-sales) (TGE 10% @ $20M FDV; IDOs 5%; buyback resales at a discount) |
 | Vesting | `vest`, `release`, `getVestings` | holder / anyone |
 | Bridge | `bridge`, `quoteBridge`, `getPeers` | holder |
 | Votes (home) | `transfer`, `delegate` | holder |

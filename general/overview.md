@@ -184,7 +184,7 @@ holder → lock() → locker (unvoted) → vote() → voter ← bribe() ← brib
 ### GRS at a glance
 
 - **1,000,000,000** fixed supply; single genesis on **home**.
-- **15%** (150M) Token sales — public `buy` book, Instant gate.
+- **10%** (100M) Token sales + **5%** (50M) IDOs — public `buy` book, Instant gate (same TokenSales soft plan).
 - **20%** each: Investments, Affiliates, Team, Ecosystem, Foundation.
 - Cap-table `**grant**` is `owner` on home; spokes revert `NotHome`.
 

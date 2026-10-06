@@ -72,7 +72,8 @@ Vendor is an implementation choice. Accounting is the spec.
 | Bucket                    | Share    | GRS      | Gate        | Unlock                                               |
 | ------------------------- | -------- | -------- | ----------- | ---------------------------------------------------- |
 | **Investments**           | **20%**  | **200M** |             |                                                      |
-| Token sales               | 15%      | 150M*    | Instant     | **10% TGE** @ $20M FDV (4 rows ETH/SOL); **5% Late Sale** after protocol anniversary at a **discount**. Buybacks re-enter TokenSales and resell under the same discount policy. [Token sales plan](https://docs.grindurus.xyz/grs/token-sales) |
+| Token sales               | 10%      | 100M*    | Instant     | **TGE** @ $20M FDV (4 rows ETH/SOL). [Token sales plan](https://docs.grindurus.xyz/grs/token-sales) |
+| IDOs                      | 5%       | 50M*     | Instant     | Initial DEX Offerings — display carve from TokenSales soft plan (same on-chain inventory) |
 | Pre-seed                  | 5%       | 50M      | Linear      | **$1M USDC** @ $0.02; no cliff, 24m after TGE (fully M24) |
 | **Affiliates & airdrops** | **20%**  | **200M** |             |                                                      |
 | Revenue Share             | 15%      | 150M     | Proprietary | TGE allocated · ∞ (ops, no GRS vote)                 |
@@ -90,9 +91,9 @@ Vendor is an implementation choice. Accounting is the spec.
 | **Total**                 | **100%** | **1B**   |             |                                                      |
 
 
-**TGE (M0):** ~150M (15%) free float = TGE sales **100M** + Foundation **50M**. TokenSales keeps **50M** for the **Late Sale** (after protocol anniversary). 400M (40%) gated at TGE (Revenue Share, Airdrops, Growth, LP). ~450M still locked/reserved: 250M calendar vest (Pre-seed + Team) + 150M Foundation proprietary-gated + 50M unsold TokenSales.
+**TGE (M0):** ~200M (20%) free float = TGE sales **100M** + IDOs **50M** + Foundation **50M**. 400M (40%) gated at TGE (Revenue Share, Airdrops, Growth, LP). ~400M still locked/reserved: 250M calendar vest (Pre-seed + Team) + 150M Foundation proprietary-gated.
 
-\* **150M** is the genesis TokenSales **plan**. On-chain the bucket is uncapped so fee buybacks can re-enter inventory and be relisted at a **discount** (same policy as Late Sale).
+\* Genesis TokenSales soft plan **150M** = Token sales **100M** + IDOs **50M**. IDOs are not a separate on-chain `Bucket`. On-chain TokenSales is uncapped so fee buybacks can re-enter inventory and be relisted at a **discount**.
 
 
 | Term              | Meaning                                               |
@@ -139,7 +140,7 @@ Any holder, home or spoke (EVM / Solana). Instant (cliff = duration = 0) reverts
 
 ### Token sales
 
-Public float from bucket **TokenSales** (Instant, no vest). Genesis **plan**: **100M TGE** + **50M Late Sale** after the protocol anniversary — [raise plan](https://docs.grindurus.xyz/grs/token-sales). On-chain the bucket is **uncapped** (`capOf = max`; `remaining` = `balanceOf(this) − vestingLocked`): fee **buybacks** return GRS to TokenSales and can be relisted beyond the 150M plan. Public resale for Late Sale and recycled buybacks: a **discount** (ops-set).
+Public float from bucket **TokenSales** (Instant, no vest). Genesis soft **plan**: **100M TGE** + **50M IDOs** (cap-table display carve) — [raise plan](https://docs.grindurus.xyz/grs/token-sales). On-chain the bucket is **uncapped** (`capOf = max`; `remaining` = `balanceOf(this) − vestingLocked`): fee **buybacks** return GRS to TokenSales and can be relisted beyond the 150M plan. Public resale for recycled buybacks: a **discount** (ops-set).
 
 The book can hold many rows: each is remaining GRS (`grsAmount`) and remaining asset (`assetAmount`). `buy` pays a share of `assetAmount` and receives GRS immediately. Home may also `grant(TokenSales, …)` (EVM only); `spent[TokenSales]` is accounting only (no hard 150M gate). Local listing (`dstEid = 0`) does not move tokens but **requires** `grsAmount ≤ remaining(TokenSales)` (`InsufficientInventory`); listing to a spoke burns from that free float. Unreleased `grant`/`vest` escrow is tracked as `vestingLocked` and is not sellable.
 Home **LZ-publishes** the row with `sale(..., dstEid)`: home **burns** `grsAmount` from TokenSales inventory and the spoke `lzReceive` writes the row (`SaleAccepted`) **and mints that GRS into escrow**. Native `asset = 0` copies as native on every chain. `asset` and `recipient` are `bytes32` (EVM address left-padded; Solana mint / pubkey is already 32 bytes). On the wire `grsAmount` is OFT **shared decimals** (6); each chain stores local decimals.
@@ -192,7 +193,7 @@ Insufficient escrow reverts (ERC-20 / SPL). `buy` never mints.
 | TokenSales     | Uncapped. `spent` / `token_sales_spent` for accounting. Genesis plan 150M; buybacks re-enter inventory. | Same local inventory model. Not a shared LZ counter. |
 
 
-Genesis TokenSales inventory lives on **home**. A spoke sale is minted into escrow when home publishes the row (1:1 burn on home). Do not also grant the same TokenSales GRS on home. **Buybacks** (beneficiar / FeeVault market buys) deposit GRS back into home escrow and are intended to be relisted at a **discount** (same policy as Late Sale).
+Genesis TokenSales inventory lives on **home**. A spoke sale is minted into escrow when home publishes the row (1:1 burn on home). Do not also grant the same TokenSales GRS on home. **Buybacks** (beneficiar / FeeVault market buys) deposit GRS back into home escrow and are intended to be relisted at a **discount**.
 
 `getSales(offset, limit)` — 0-based offset, id = offset+1. Reverts `UnknownSale` if `offset` is past the book (`limit == 0` → `ZeroAmount`). A returned page shorter than `limit` is the end of the book (no `saleCount`).
 

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 560" width="100%" role="img" aria-label="GRS raise plan: Pre-seed, TGE sales on Ethereum and Solana, Late Sale after anniversary, fee buyback">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 560" width="100%" role="img" aria-label="GRS raise plan: Pre-seed, TGE sales, IDOs, fee buyback">
   <defs>
     <linearGradient id="bgGrad" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0%" stop-color="#f8fafc"/>
@@ -13,9 +13,9 @@
       <stop offset="0%" stop-color="#0369a1"/>
       <stop offset="100%" stop-color="#0c4a6e"/>
     </linearGradient>
-    <linearGradient id="lateGrad" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#7c3aed"/>
-      <stop offset="100%" stop-color="#5b21b6"/>
+    <linearGradient id="idoGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#5b21b6"/>
+      <stop offset="100%" stop-color="#4c1d95"/>
     </linearGradient>
     <filter id="cardShadow" x="-6%" y="-6%" width="112%" height="112%">
       <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#0f172a" flood-opacity="0.10"/>
@@ -35,7 +35,6 @@
       .cardMeta { font: 500 11px ui-monospace, SFMono-Regular, Menlo, monospace; fill: #334155; }
       .cardHint { font: 400 10px ui-sans-serif, system-ui, -apple-system, sans-serif; fill: #64748b; }
       .axis { font: 600 10px ui-sans-serif, system-ui, -apple-system, sans-serif; fill: #64748b; letter-spacing: 0.04em; text-transform: uppercase; }
-      .foot { font: 500 11px ui-sans-serif, system-ui, -apple-system, sans-serif; fill: #334155; }
       .footMuted { font: 400 10px ui-sans-serif, system-ui, -apple-system, sans-serif; fill: #64748b; }
       .anchor { font: 600 12px ui-monospace, SFMono-Regular, Menlo, monospace; fill: #0f766e; }
     ]]></style>
@@ -56,22 +55,21 @@
   <!-- Time axis -->
   <text x="48" y="148" class="axis">Time</text>
   <line x1="90" y1="144" x2="900" y2="144" stroke="#94a3b8" stroke-width="3" stroke-linecap="round" marker-end="url(#arrowHead)"/>
-  <!-- ticks -->
-  <line x1="160" y1="136" x2="160" y2="152" stroke="#0d9488" stroke-width="3"/>
+  <line x1="180" y1="136" x2="180" y2="152" stroke="#0d9488" stroke-width="3"/>
   <line x1="480" y1="136" x2="480" y2="152" stroke="#0284c7" stroke-width="3"/>
-  <line x1="800" y1="136" x2="800" y2="152" stroke="#7c3aed" stroke-width="3"/>
-  <circle cx="160" cy="144" r="7" fill="#0d9488" stroke="#ffffff" stroke-width="2"/>
+  <line x1="780" y1="136" x2="780" y2="152" stroke="#7c3aed" stroke-width="3"/>
+  <circle cx="180" cy="144" r="7" fill="#0d9488" stroke="#ffffff" stroke-width="2"/>
   <circle cx="480" cy="144" r="7" fill="#0284c7" stroke="#ffffff" stroke-width="2"/>
-  <circle cx="800" cy="144" r="7" fill="#7c3aed" stroke="#ffffff" stroke-width="2"/>
-  <text x="160" y="124" text-anchor="middle" class="axis">Pre-TGE</text>
+  <circle cx="780" cy="144" r="7" fill="#7c3aed" stroke="#ffffff" stroke-width="2"/>
+  <text x="180" y="124" text-anchor="middle" class="axis">Pre-TGE</text>
   <text x="480" y="124" text-anchor="middle" class="axis">TGE</text>
-  <text x="800" y="124" text-anchor="middle" class="axis">Year 1+</text>
-  <text x="160" y="168" text-anchor="middle" class="footMuted">pre-seed raise</text>
+  <text x="780" y="124" text-anchor="middle" class="axis">IDOs</text>
+  <text x="180" y="168" text-anchor="middle" class="footMuted">pre-seed raise</text>
   <text x="480" y="168" text-anchor="middle" class="footMuted">public sales open</text>
-  <text x="800" y="168" text-anchor="middle" class="footMuted">after anniversary</text>
+  <text x="780" y="168" text-anchor="middle" class="footMuted">Initial DEX Offerings</text>
 
   <g filter="url(#cardShadow)" transform="translate(40, 190)">
-    <rect width="240" height="220" rx="14" fill="url(#seedGrad)"/>
+    <rect width="260" height="220" rx="14" fill="url(#seedGrad)"/>
     <text x="20" y="28" class="phase">Pre-seed</text>
     <text x="20" y="48" class="phaseSub">24m linear vest</text>
     <text x="20" y="92" class="big">5%</text>
@@ -82,67 +80,67 @@
     <text x="20" y="204" class="small">No cliff | after TGE clock</text>
   </g>
 
-  <g filter="url(#cardShadow)" transform="translate(300, 190)">
-    <rect width="360" height="220" rx="14" fill="url(#tgeGrad)"/>
-    <text x="20" y="28" class="phase">TGE sales</text>
-    <text x="20" y="48" class="phaseSub">Instant | pay with USDC / ETH / SOL</text>
-    <text x="20" y="78" class="big">10%</text>
-    <text x="118" y="74" class="mid">100M GRS | ~$2M raise</text>
+  <g filter="url(#cardShadow)" transform="translate(320, 190)">
+    <rect width="320" height="220" rx="14" fill="url(#tgeGrad)"/>
+    <text x="16" y="28" class="phase">TGE sales</text>
+    <text x="16" y="48" class="phaseSub">Instant | USDC / ETH / SOL</text>
+    <text x="16" y="78" class="big">10%</text>
+    <text x="110" y="74" class="mid">100M | ~$2M</text>
 
-    <g transform="translate(16, 96)">
-      <rect width="158" height="48" rx="8" fill="#ffffff" fill-opacity="0.14"/>
-      <text x="14" y="22" class="small">1a | 2.5% | Ethereum</text>
-      <text x="14" y="38" class="small">$0.5M USDC</text>
+    <g transform="translate(12, 96)">
+      <rect width="142" height="48" rx="8" fill="#ffffff" fill-opacity="0.14"/>
+      <text x="10" y="22" class="small">1a | 2.5% | ETH</text>
+      <text x="10" y="38" class="small">$0.5M USDC</text>
 
-      <rect x="170" width="158" height="48" rx="8" fill="#ffffff" fill-opacity="0.14"/>
-      <text x="184" y="22" class="small">1b | 2.5% | Solana</text>
-      <text x="184" y="38" class="small">$0.5M USDC</text>
+      <rect x="154" width="142" height="48" rx="8" fill="#ffffff" fill-opacity="0.14"/>
+      <text x="164" y="22" class="small">1b | 2.5% | SOL</text>
+      <text x="164" y="38" class="small">$0.5M USDC</text>
 
-      <rect y="56" width="158" height="48" rx="8" fill="#ffffff" fill-opacity="0.14"/>
-      <text x="14" y="78" class="small">2 | 2.5% | Ethereum</text>
-      <text x="14" y="94" class="small">~$0.5M in ETH</text>
+      <rect y="56" width="142" height="48" rx="8" fill="#ffffff" fill-opacity="0.14"/>
+      <text x="10" y="78" class="small">2 | 2.5% | ETH</text>
+      <text x="10" y="94" class="small">~$0.5M ETH</text>
 
-      <rect x="170" y="56" width="158" height="48" rx="8" fill="#ffffff" fill-opacity="0.14"/>
-      <text x="184" y="78" class="small">3 | 2.5% | Solana</text>
-      <text x="184" y="94" class="small">~$0.5M in SOL</text>
+      <rect x="154" y="56" width="142" height="48" rx="8" fill="#ffffff" fill-opacity="0.14"/>
+      <text x="164" y="78" class="small">3 | 2.5% | SOL</text>
+      <text x="164" y="94" class="small">~$0.5M SOL</text>
     </g>
   </g>
 
-  <g filter="url(#cardShadow)" transform="translate(680, 190)">
-    <rect width="240" height="220" rx="14" fill="url(#lateGrad)"/>
-    <text x="20" y="28" class="phase">Late Sale</text>
-    <text x="20" y="48" class="phaseSub">After protocol anniversary</text>
+  <g filter="url(#cardShadow)" transform="translate(660, 190)">
+    <rect width="260" height="220" rx="14" fill="url(#idoGrad)"/>
+    <text x="20" y="28" class="phase">IDOs</text>
+    <text x="20" y="48" class="phaseSub">Initial DEX Offerings</text>
     <text x="20" y="92" class="big">5%</text>
     <text x="100" y="88" class="mid">50M GRS</text>
-    <text x="20" y="128" class="mid">Discount</text>
-    <text x="20" y="152" class="small">Ops-set below market</text>
-    <text x="20" y="176" class="small">Not before year one</text>
-    <text x="20" y="200" class="small">Raise depends on spot</text>
+    <text x="20" y="128" class="mid">Instant | sale / buy</text>
+    <text x="20" y="156" class="small">Same TokenSales inventory</text>
+    <text x="20" y="180" class="small">Cap-table display carve</text>
+    <text x="20" y="204" class="small">Ops-set listing</text>
   </g>
 
-  <path d="M280 300 H300" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrowHead)"/>
-  <path d="M660 300 H680" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrowHead)"/>
+  <path d="M300 300 H320" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrowHead)"/>
+  <path d="M640 300 H660" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrowHead)"/>
 
   <g filter="url(#cardShadow)" transform="translate(40, 432)">
-    <rect width="620" height="100" rx="14" fill="#ffffff" stroke="#e2e8f0"/>
+    <rect width="560" height="100" rx="14" fill="#ffffff" stroke="#e2e8f0"/>
     <text x="20" y="28" class="cardTitle">~$4M target treasury after pre-seed + TGE</text>
     <g transform="translate(20, 44)">
-      <rect width="188" height="40" rx="10" fill="#ecfdf5"/>
+      <rect width="168" height="40" rx="10" fill="#ecfdf5"/>
       <text x="14" y="16" class="cardHint">USDC (pre-seed + 1a + 1b)</text>
       <text x="14" y="32" class="cardMeta">~$2M USDC</text>
 
-      <rect x="204" width="180" height="40" rx="10" fill="#eff6ff"/>
-      <text x="218" y="16" class="cardHint">ETH (row 2)</text>
-      <text x="218" y="32" class="cardMeta">~$0.5M in ETH</text>
+      <rect x="184" width="160" height="40" rx="10" fill="#eff6ff"/>
+      <text x="198" y="16" class="cardHint">ETH (row 2)</text>
+      <text x="198" y="32" class="cardMeta">~$0.5M in ETH</text>
 
-      <rect x="400" width="200" height="40" rx="10" fill="#f5f3ff"/>
-      <text x="414" y="16" class="cardHint">SOL (row 3)</text>
-      <text x="414" y="32" class="cardMeta">~$0.5M in SOL</text>
+      <rect x="360" width="180" height="40" rx="10" fill="#f5f3ff"/>
+      <text x="374" y="16" class="cardHint">SOL (row 3)</text>
+      <text x="374" y="32" class="cardMeta">~$0.5M in SOL</text>
     </g>
   </g>
 
-  <g filter="url(#cardShadow)" transform="translate(680, 432)">
-    <rect width="240" height="100" rx="14" fill="#0f172a"/>
+  <g filter="url(#cardShadow)" transform="translate(620, 432)">
+    <rect width="300" height="100" rx="14" fill="#0f172a"/>
     <text x="20" y="26" style="font:700 12px ui-sans-serif,system-ui,sans-serif;fill:#f8fafc">After TGE</text>
     <text x="20" y="44" style="font:700 12px ui-sans-serif,system-ui,sans-serif;fill:#f8fafc">buybacks by revenue</text>
     <text x="20" y="66" style="font:400 11px ui-sans-serif,system-ui,sans-serif;fill:#cbd5e1">~30% vol income → buy GRS</text>
