@@ -9,11 +9,12 @@ GrindURUS runs a dual-sided strategy on crypto pairs: buy low / sell high and se
 - [Quickstart](general/quickstart.md) — deposit GRAI in the app
 - [Manifesto](general/manifesto.md) — why GrindURUS exists
 - [Overview](general/overview.md) — architecture, tokenomics, GRAI / GRS roles
-- [GRAI](grai/overview.md) — deposit, lock, dividends, liquidation
-- [GRS](grs/overview.md) — 1B protocol token, cap table, sales, bridge
-- [Grinders](grinders/overview.md) — custodian NFTs and where capital trades
-- [Protocol](protocol/overview.md) — URUS accounting, GrindURUS strategy, Boss / adapters
-- [Developers → Mechanics](developers/mechanics/README.md) — on-chain specs (GRAI, GRS, GRINDERS)
+- [Protocol](protocol/overview.md) — why GRAI, Grinders, Treasury, GRS exist
+- [Cross-chain markets](protocol/cross-chain-pricing.md) — local GRAI + GRS mesh
+- [GRAI](protocol/grai/overview.md) — deposit, lock, dividends, liquidation · [mechanics](protocol/grai/mechanics.md)
+- [GRS](protocol/grs/overview.md) — 1B protocol token, cap table, sales, bridge · [mechanics](protocol/grs/mechanics.md)
+- [Grinders](protocol/grinders/overview.md) — custodian NFTs · [off-chain](protocol/grinders/off-chain.md) · [mechanics](protocol/grinders/mechanics.md)
+- [Developers](developers/repositories.md) — repos, EVM, Solana
 
 ## Products
 

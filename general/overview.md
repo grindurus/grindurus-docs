@@ -1,6 +1,6 @@
 # Overview
 
-GrindURUS is **extended accounting** with an on-chain fund layer (**GRAI**). See [Protocol](../protocol/overview.md), [GRAI](../grai/overview.md), [GRS](../grs/overview.md), [Treasury](../grai/treasury-and-affiliates.md).
+GrindURUS is **extended accounting** with an on-chain fund layer (**GRAI**). See [Protocol overview](../protocol/overview.md), [Grinders off-chain](../protocol/grinders/off-chain.md), [GRAI](../protocol/grai/overview.md), [GRS](../protocol/grs/overview.md), [Treasury](../protocol/grai/treasury-and-affiliates.md).
 
 ## Two layers
 
@@ -76,9 +76,9 @@ Depositor
 
 ### Protocol map
 
-![GrindURUS protocol map: actors, contracts, and yield cuts](./protocol.png)
+![GrindURUS protocol map: actors, contracts, and yield cuts](../protocol/protocol.png)
 
-Source: [protocol.svg](../developers/mechanics/protocol.svg) · PNG: [protocol.png](./protocol.png).
+Source: [protocol.svg](../protocol/protocol.svg) · PNG: [protocol.png](../protocol/protocol.png).
 
 GRAI actors: locker, voter, briber, referrer, poacher
 
@@ -160,7 +160,7 @@ From the treasury cut:
 | **Remainder**     | ~45% of gross yield             | `Treasury.beneficiar` — **net profit**        |
 
 
-At launch `beneficiar` is typically `GRAI.owner()`. Part of net profit is intended for **open-market GRS buybacks** (~30% of distributed yield). Bought GRS return to **TokenSales** and are relisted at a **discount** — see [Token sales](../grs/token-sales.md).
+At launch `beneficiar` is typically `GRAI.owner()`. Part of net profit is intended for **open-market GRS buybacks** (~30% of distributed yield). Bought GRS return to **TokenSales** and are relisted at a **discount** — see [Token sales](../protocol/grs/token-sales.md).
 
 ### Role ladder (GRAI)
 
@@ -188,7 +188,7 @@ holder → lock() → locker (unvoted) → vote() → voter ← bribe() ← brib
 - **20%** each: Investments, Affiliates, Team, Ecosystem, Foundation.
 - Cap-table `**grant**` is `owner` on home; spokes revert `NotHome`.
 
-Full bucket table: [GRS cap table](../grs/cap-table.md).
+Full bucket table: [GRS cap table](../protocol/grs/cap-table.md).
 
 ### What GRS is not
 

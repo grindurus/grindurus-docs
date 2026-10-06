@@ -1,110 +1,90 @@
 # Protocol overview
 
-## Core
-
-This section is the **tip of the iceberg**: enough to see what GrindURUS *is* and how the off-chain stack is wired. The deep layer — full positional algebra, ledger invariants, and GrindURUS operation set — stays with **URUS** and will be published after the PhD work lands in 2027.
-
-The core is **extended asset accounting through a ledger**.
-
-A blockchain already keeps an asset ledger — balances, transfers, custody. The protocol applies the same idea to **pair `(asset, related price)`**, which generates **positional algebra**.
-
-**URUS** is the code name for that positional algebra — **Ubiquitous Resource for Utilities and Securities** (developed by Vakhtanh Chikhladze, Founder).
-
-## Strategy
-
-**GrindURUS** is the strategy that has a composition of many URUS operations and derived data structures. (Full spec after PhD.)
-
-### Modes
-
-| Mode | Action | Result |
-| ---- | ------ | ------ |
-| **DIRECT** | Buy dips, sell rallies | Quote asset grows (e.g. more USDC) |
-| **INVERSE** | Sell peaks, rebuy dips | Base asset grows (e.g. more ETH) |
-
-Both modes run on the **same pair** inside one **Grinder**. Thresholds and loop timing are configurable.
-
-### Grinder
-
-A **Grinder** is the runtime unit:
-
-- Initializes an **adapter** (terminal connection).
-- Runs **DIRECT** and **INVERSE** `GrindURUS` strategy instances.
-- Exposes an HTTP API (prices, balances, config, grind loop).
-- Persists state under a UUID data directory.
-
-**Boss** spawns Grinder containers, proxies requests, and tracks health. In dev, source under `grindurus/` is bind-mounted with hot reload.
-
-### Where yield goes
-
-Grinders in production connect to **custodian wallets** on-chain (Grinders NFTs). Reported profit flows:
+GrindURUS turns pair volatility into yield. The **protocol** is the on-chain fund + equity layer that holds capital, pays depositors, and routes fees — plus the off-chain Grinders that actually trade.
 
 ```
-Custodian → Grinders.distribute → GRAI.distribute → dividends + Treasury
+depositors ──► GRAI ──► Grinders reserve ──► custodian NFTs ──► off-chain Grinder
+                 │              │                                      │
+                 │              └── allocate / deallocate               │
+                 │                                                     │
+                 ◄────────────── distribute(yield) ◄───────────────────┘
+                 │
+                 ├── dividends → lockers (claim)
+                 └── treasury cut → Treasury → affiliates + beneficiar
+                                                      │
+                                                      └── (ops) GRS buyback → TokenSales
 ```
 
-Off-chain backtests use historical klines without touching GRAI.
+Map: [protocol.svg](protocol.svg) · [protocol.png](protocol.png)
 
-## Infrastructure
+---
 
-The **[grindurus-protocol]** repo runs the off-chain stack.
+## Components
 
-### Layout
+### GRAI — fund share
 
-```
-grindurus-protocol/
-├── grindurus/               # Grinder, GrindURUS, GrindLedger
-│   ├── core/                # Adapter, Ledger, Mode, URUS
-│   └── adapters/            # Terminal plugins
-│       ├── binance/         # CCXT (ccxt:binance)
-│       ├── cow/             # CoW Protocol (eip155:cow)
-│       ├── jupiter/         # Jupiter (solana:jupiter)
-│       ├── lifi_solana/     # LiFi routing (solana_lifi)
-│       ├── lifi_solana_intents/  # LiFi Intents [WIP]
-│       ├── lifi/            # LiFi EVM [WIP]
-│       └── velora/          # ParaSwap Delta [WIP]
-├── docker/                  # Boss, Grinder images, Traefik
-├── frontend/                # Boss UI (Vite + React)
-├── analytics/               # Notebooks
-└── test/                    # Backtests
-```
+**What:** Elastic USD book-priced token. Deposit listed assets → mint GRAI; lock for dividends; vote toward liquidation.
 
-Grinder **discovers** adapters automatically: each subpackage under `grindurus/adapters/` registers an `Adapter` subclass and its terminal name.
+**Why it is here:** Separates *passive capital* from trading ops. Depositors get a claim on the fund without running strategies. Book price (`totalValue`) is the fair mint/redeem anchor; secondary GRAI/ETH is optional.
 
-### Terminals
+→ [GRAI overview](grai/overview.md) · [mechanics](grai/mechanics.md)
 
-| Adapter folder | Terminal id | Status |
-| -------------- | ----------- | ------ |
-| `binance` | `ccxt:binance` | ready |
-| `cow` | `eip155:cow` | ready |
-| `jupiter` | `solana:jupiter` | routing |
-| `lifi_solana` | `solana_lifi` | routing |
-| `lifi_solana_intents` | `solana_lifi_intents` | WIP |
-| `lifi` | — | WIP |
-| `velora` | — | WIP |
+### Grinders (on-chain) — custody vault
 
-### Boss and Grinder
+**What:** Reserve that receives deposits, plus **GRINDERS NFTs** — one proxy wallet per custodian that holds allocated capital and can trade.
 
-| Service | Port (default) | Role |
-| ------- | -------------- | ---- |
-| **Boss** | 8000 | Create/stop grinders, proxy API, SSE streams |
-| **Grinder** | 8001 | Strategy loop + adapter |
+**Why it is here:** Capital must live somewhere tradable without mixing into GRAI’s accounting every swap. Custodians move inventory; GRAI book only updates on `deposit` / `distribute` / redeem / revive. NFT ownership is the keys to that wallet.
 
-Each grinder is reachable at `grinder-<id>.<boss>.localhost` behind Traefik in local Docker.
+→ [Grinders overview](grinders/overview.md) · [mechanics](grinders/mechanics.md)
 
-### Backtest
+### Grinders (off-chain) — trading runtime
 
-Historical runs live under `grindurus-protocol/test/`:
+**What:** Boss + Grinder containers + adapters (Binance, CoW, Jupiter, LiFi, …). Each process runs GrindURUS **DIRECT** / **INVERSE** on a pair and pushes profit into the linked custodian.
 
-- `backtest_direct.py` / `backtest_inverse.py` — single-mode URUS on klines
-- `backtest_grinder.py` — full Grinder + backtest adapter
+**Why it is here:** Strategy and terminal connectivity are off-chain by design (latency, APIs, PhD-depth URUS algebra). On-chain only sees allocations and reported yield — not every fill.
 
-The public app exposes a paid backtest calculator at [app.grindurus.xyz/backtest](https://app.grindurus.xyz/backtest).
+→ [Off-chain](grinders/off-chain.md)
 
-### Ecosystem services
+### Treasury — fee tree and affiliates
 
-| Repo | Role |
-| ---- | ---- |
-| `gateway` | Edge reverse proxy |
-| `grindurus-backtest-service` | Backtest API + OHLCV/klines (`klines/`) |
+**What:** Companion of GRAI. Holds the treasury cut of `distribute`, pays L1/L2 referrers on `claim`, keeps a GRAI-TREASURY NFT tree; `poach` can buy an upline seat.
 
-On-chain fund and token detail: [General overview](../general/overview.md) · [GRAI](../grai/overview.md) · [Grinders](../grinders/overview.md).
+**Why it is here:** Growth distribution (affiliates) and protocol fee sink must not sit in the share token itself. Treasury isolates referral books and beneficiar routing from locker dividends.
+
+→ [Treasury and affiliates](grai/treasury-and-affiliates.md)
+
+### GRS — protocol equity
+
+**What:** Fixed **1B** supply, home genesis + LayerZero OFT spokes. Cap-table `grant` / vesting, public `sale` / `buy`, bridge. Not a second fund share.
+
+**Why it is here:** Governance and value accrual for the *protocol* (ownership, fee destiny, TokenSales / buyback recycle), independent of elastic GRAI NAV. Bridgable so equity stays one float across chains while each chain keeps its own GRAI fund.
+
+→ [GRS overview](grs/overview.md) · [cap table](grs/cap-table.md) · [token sales](grs/token-sales.md) · [bridge](grs/bridge.md) · [mechanics](grs/mechanics.md)
+
+---
+
+## How they fit
+
+| Question | Component |
+| -------- | --------- |
+| Where do I put capital? | **GRAI** `deposit` |
+| Who holds and trades it? | **Grinders** reserve → custodian NFT ← **off-chain** Grinder |
+| How do I earn without trading? | Lock GRAI → **claim** dividends from `distribute` |
+| Who gets protocol fees / referrals? | **Treasury** (+ beneficiar / buybacks) |
+| What is protocol ownership? | **GRS** (not GRAI) |
+| How does the fund shut down? | GRAI **vote** + Grinders heartbeat stale → liquidate → redeem |
+
+**GRAI ≠ GRS.** GRAI scales with deposits; GRS does not. Yield accrues to locked GRAI and Treasury; buybacks may recycle GRS into TokenSales — they do not mint new equity.
+
+Cross-chain note: GRS bridges 1:1; GRAI is local per chain. How the mesh works: [Cross-chain markets](cross-chain-pricing.md).
+
+---
+
+## Read next
+
+| Path | Start here |
+| ---- | ---------- |
+| Deposit & earn | [GRAI](grai/overview.md) → [lock / dividends](grai/lock-vote-and-dividends.md) |
+| Custody & bots | [Grinders](grinders/overview.md) → [off-chain](grinders/off-chain.md) |
+| Equity & raise | [GRS](grs/overview.md) → [token sales](grs/token-sales.md) |
+| Product narrative | [General overview](../general/overview.md) |

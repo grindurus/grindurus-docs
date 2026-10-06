@@ -7,40 +7,40 @@
 
 * [Manifesto](general/manifesto.md)
 * [Overview](general/overview.md)
-* [Fundraising concepts](general/fundraising-concepts.md)
 
 ## Protocol
 
 * [Overview](protocol/overview.md)
+* [Cross-chain markets](protocol/cross-chain-pricing.md)
 
-## GRAI
+### GRAI
 
-* [Overview](grai/overview.md)
-* [Deposit and mint](grai/deposit-and-mint.md)
-* [Lock, vote, dividends](grai/lock-vote-and-dividends.md)
-* [Liquidation](grai/liquidation.md)
-* [Treasury and affiliates](grai/treasury-and-affiliates.md)
+* [Overview](protocol/grai/overview.md)
+* [Deposit and mint](protocol/grai/deposit-and-mint.md)
+* [Lock, vote, dividends](protocol/grai/lock-vote-and-dividends.md)
+* [Liquidation](protocol/grai/liquidation.md)
+* [Treasury and affiliates](protocol/grai/treasury-and-affiliates.md)
+* [Mechanics](protocol/grai/mechanics.md)
 
-## GRS
+### GRS
 
-* [Overview](grs/overview.md)
-* [Cap table](grs/cap-table.md)
-* [Bridge (home and spokes)](grs/bridge.md)
-* [Token sales](grs/token-sales.md)
+* [Overview](protocol/grs/overview.md)
+* [Cap table](protocol/grs/cap-table.md)
+* [Bridge (home and spokes)](protocol/grs/bridge.md)
+* [Token sales](protocol/grs/token-sales.md)
+* [Mechanics](protocol/grs/mechanics.md)
 
-## Grinders
+### Grinders
 
-* [Overview](grinders/overview.md)
+* [Overview](protocol/grinders/overview.md)
+* [Off-chain](protocol/grinders/off-chain.md)
+* [Mechanics](protocol/grinders/mechanics.md)
 
 ## Developers
 
 * [Repositories](developers/repositories.md)
 * [EVM contracts](developers/evm-contracts.md)
 * [Solana programs](developers/solana-programs.md)
-* [Mechanics](developers/mechanics/README.md)
-  * [GRAI](developers/mechanics/GRAI.md)
-  * [GRS](developers/mechanics/GRS.md)
-  * [Grinders](developers/mechanics/GRINDERS.md)
 
 ## Links
 

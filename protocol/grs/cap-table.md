@@ -7,7 +7,7 @@
 | Group | Share | GRS | Notes |
 | ----- | ----- | --- | ----- |
 | **Investments** | 20% | 200M | |
-| → Token sales | 10% | 100M* | Instant — `buy` / optional `grant`. **TGE** @ $20M FDV (ETH+SOL rows). See [Token sales](https://docs.grindurus.xyz/grs/token-sales) |
+| → Token sales | 10% | 100M* | Instant — `buy` / optional `grant`. **TGE** @ $20M FDV (ETH+SOL rows). See [Token sales](https://docs.grindurus.xyz/protocol/grs/token-sales) |
 | → IDOs | 5% | 50M* | Instant — Initial DEX Offerings. Display carve from the TokenSales soft plan (same on-chain inventory); listed via `sale` / `buy` |
 | → Pre-seed | 5% | 50M | **$1M USDC** @ $0.02 ($20M FDV). Linear, 24m after TGE |
 | **Affiliates & airdrops** | 20% | 200M | |
@@ -57,4 +57,4 @@ Any holder may **`vest`** their own GRS (home or spoke):
 
 ## Charts
 
-Cap table visuals: [grs.svg](../developers/mechanics/grs.svg), [grs-vesting.svg](../developers/mechanics/grs-vesting.svg).
+Cap table visuals: [grs.svg](./grs.svg), [grs-vesting.svg](./grs-vesting.svg).

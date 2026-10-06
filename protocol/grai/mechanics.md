@@ -97,9 +97,9 @@ Listed collateral is assumed **non-rebasing** (balance only changes via GRAI `_p
 | **Grinders owner**     | Same or separate Ownable2Step: custodian ops; liquidation arm via `confirm`               |
 
 
-![Protocol map: locker, voter, briber, referrer, poacher](protocol.png)
+![Protocol map: locker, voter, briber, referrer, poacher](../protocol.png)
 
-Source: `[protocol.svg](protocol.svg)` · PNG: `[protocol.png](protocol.png)`.
+Source: `[protocol.svg](../protocol.svg)` · PNG: `[protocol.png](../protocol.png)`.
 
 Native ETH = `address(0)`. WETH is the fallback when ETH pushes are rejected.
 
@@ -1122,7 +1122,7 @@ Tests: `[test/TreasuryPoach.t.sol](https://github.com/grindurus/grindurus-evm/bl
 
 ## 13. Grinders layer
 
-Full write-up: [GRINDERS.md](https://docs.grindurus.xyz/developers/mechanics/grinders).
+Full write-up: [Grinders mechanics](https://docs.grindurus.xyz/protocol/grinders/mechanics).
 
 
 | Topic              | Behavior                                                |

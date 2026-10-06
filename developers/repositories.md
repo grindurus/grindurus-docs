@@ -18,9 +18,9 @@ Local workspace often clones all trees as siblings under one `grindurus/` folder
 
 | Doc | Path |
 | --- | ---- |
-| GRAI mechanics | [developers/mechanics/GRAI.md](https://docs.grindurus.xyz/developers/mechanics/grai) |
-| GRS mechanics | [developers/mechanics/GRS.md](https://docs.grindurus.xyz/developers/mechanics/grs) |
-| Grinders mechanics | [developers/mechanics/GRINDERS.md](https://docs.grindurus.xyz/developers/mechanics/grinders) |
+| GRAI mechanics | [protocol/grai/mechanics.md](https://docs.grindurus.xyz/protocol/grai/mechanics) |
+| GRS mechanics | [protocol/grs/mechanics.md](https://docs.grindurus.xyz/protocol/grs/mechanics) |
+| Grinders mechanics | [protocol/grinders/mechanics.md](https://docs.grindurus.xyz/protocol/grinders/mechanics) |
 | Capability checklist | `FUNCTIONALITY.md` (monorepo root) |
 | Manifesto | [general/manifesto.md](https://docs.grindurus.xyz/general/manifesto) |
 

@@ -74,4 +74,6 @@ Instead, liquidation depends on an implicit heartbeat:
 
 [app.grindurus.xyz/grinders](https://app.grindurus.xyz/grinders) — custody balances, register, allocate (when wired).
 
-Spec: [GRINDERS mechanics](https://docs.grindurus.xyz/developers/mechanics/grinders)
+Spec: [GRINDERS mechanics](https://docs.grindurus.xyz/protocol/grinders/mechanics)
+
+Trading stack (Boss, adapters, GrindURUS): [Off-chain](https://docs.grindurus.xyz/protocol/grinders/off-chain)

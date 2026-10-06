@@ -43,4 +43,4 @@ Key integration: `test/GRAILifecycle.t.sol`, `test/TreasuryReferrals.t.sol`, `te
 
 ## Docs in repo
 
-Mechanics specs: [developers/mechanics](https://docs.grindurus.xyz/developers/mechanics) — GRAI, GRS, GRINDERS + diagrams (`protocol.svg`, `grs.svg`, …).
+Mechanics specs live under Protocol: [GRAI](https://docs.grindurus.xyz/protocol/grai/mechanics), [GRS](https://docs.grindurus.xyz/protocol/grs/mechanics), [Grinders](https://docs.grindurus.xyz/protocol/grinders/mechanics) (+ diagrams `protocol.svg`, `grs.svg`, …).
