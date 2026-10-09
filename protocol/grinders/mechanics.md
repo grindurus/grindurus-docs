@@ -135,7 +135,7 @@ sequenceDiagram
 
 | Function | Caller | Behavior |
 | -------- | ------ | -------- |
-| `set(kind, impl)` | Owner | Register / update default implementation for future `mint` (impl `custodianKind()` must match) |
+| `set(kind, impl)` | Owner | Register / update default implementation for future `mint` (impl `label()` must match) |
 | `setGrai(grai_)` | Owner | Retarget linked GRAI (do before `GRAI.setGrinders` when rewiring) |
 | `mint(kind, owner_, base, quote)` | Owner | Deploy proxy, register id, mint NFT, `setAssets` |
 | `register(custodian, owner_)` | Owner | Attach a pre-deployed proxy (must already point at this Grinders) |
@@ -162,7 +162,7 @@ After swaps, returned token and size often differ from what was allocated — ne
 - `tokenURI(id)` — on-chain JSON via `GrinderArt` (custodian address + kind).
 - `tokenURI()` (ERC-1046) — `https://grindurus.xyz/metadata.json`.
 - NFT **owner** = custodian operator (`Custodian.owner()` reads `Grinders.ownerOf(id)`).
-- Views: `getCustodiansData(fromId, toId)`, `custodianIdOf`, `custodianKindOf`, `isCustodian`.
+- Views: `getCustodiansData(fromId, toId)`, `custodianIdOf`, `labelOf`, `isCustodian`.
 
 ---
 
