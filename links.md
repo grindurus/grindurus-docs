@@ -5,7 +5,7 @@
 | | URL |
 | --- | --- |
 | Landing | [grindurus.xyz](https://grindurus.xyz) |
-| App | [app.grindurus.xyz](https://app.grindurus.xyz) |
+| App | [app.grindurus.xyz](https://grindurus.xyz/grai) |
 | Docs (this site) | [docs.grindurus.xyz](https://docs.grindurus.xyz) |
 
 ## App routes

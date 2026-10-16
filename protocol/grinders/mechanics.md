@@ -89,7 +89,7 @@ Each kind is an implementation registered on Grinders under `keccak256("grinduru
 
 | Kind string | Contract | How it earns |
 | ----------- | -------- | ------------ |
-| `grindurus.custodian.explicit_swap` | `SwapCustodian` | NFT owner builds router calldata; `swap(limitPrice, target, data)` enforces opposite base/quote deltas and a min/max execution price |
+| `grindurus.custodian.explicit_swap` | `PathCustodian` | NFT owner builds router calldata; `swap(limitPrice, target, data)` enforces opposite base/quote deltas and a min/max execution price |
 | `grindurus.custodian.cow` | `CoWCustodian` | CoW Protocol EIP-1271 orders; fills settle into the wallet |
 | `grindurus.custodian.lifi` | `LiFiCustodian` | Stub / LiFi routing into the wallet (kind registered; routing TBD) |
 

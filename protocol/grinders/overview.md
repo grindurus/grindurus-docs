@@ -35,7 +35,7 @@ Registered under `keccak256("grindurus.custodian.<name>")`:
 
 | Kind | Contract | Trading |
 | ---- | -------- | ------- |
-| `explicit_swap` | `SwapCustodian` | Router call + price limit |
+| `explicit_swap` | `PathCustodian` | Router call + price limit |
 | `cow` | `CoWCustodian` | CoW Protocol EIP-1271 |
 | `lifi` | `LiFiCustodian` | LiFi routing (stub / WIP) |
 
