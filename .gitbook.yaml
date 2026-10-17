@@ -13,20 +13,27 @@ redirects:
   protocol/strategy: protocol/grinders/off-chain.md
   protocol/infrastructure: protocol/grinders/off-chain.md
   protocol/trading-infrastructure: protocol/grinders/off-chain.md
-  general/cross-chain-pricing: protocol/cross-chain-pricing.md
-  # Old top-level GRAI / GRS / Grinders paths
+  general/cross-chain-pricing: protocol/overview.md
+  protocol/cross-chain-pricing: protocol/overview.md
+  # Old top-level GRAI / Grinders paths
   grai/overview: protocol/grai/overview.md
   grai/deposit-and-mint: protocol/grai/deposit-and-mint.md
   grai/lock-vote-and-dividends: protocol/grai/lock-vote-and-dividends.md
   grai/liquidation: protocol/grai/liquidation.md
   grai/treasury-and-affiliates: protocol/grai/treasury-and-affiliates.md
-  grs/overview: protocol/grs/overview.md
-  grs/cap-table: protocol/grs/cap-table.md
-  grs/bridge: protocol/grs/bridge.md
-  grs/token-sales: protocol/grs/token-sales.md
+  # Retired GRS pages → protocol overview
+  grs/overview: protocol/overview.md
+  grs/cap-table: protocol/overview.md
+  grs/bridge: protocol/overview.md
+  grs/token-sales: protocol/overview.md
+  protocol/grs/overview: protocol/overview.md
+  protocol/grs/cap-table: protocol/overview.md
+  protocol/grs/bridge: protocol/overview.md
+  protocol/grs/token-sales: protocol/overview.md
+  protocol/grs/mechanics: protocol/overview.md
   grinders/overview: protocol/grinders/overview.md
   # Old developers/mechanics paths
   developers/mechanics: protocol/grai/mechanics.md
   developers/mechanics/grai: protocol/grai/mechanics.md
-  developers/mechanics/grs: protocol/grs/mechanics.md
+  developers/mechanics/grs: protocol/overview.md
   developers/mechanics/grinders: protocol/grinders/mechanics.md

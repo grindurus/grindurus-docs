@@ -21,7 +21,6 @@ flowchart LR
         STR["Strategy"]
         USR["Users"]
         OWNERS["Owners"]
-        EQ["GRS<br/>fund share"]
     end
 
     GRAI -->|capital| CUST
@@ -30,14 +29,11 @@ flowchart LR
 
     GRAI -->|dividends| USR
     GRAI -->|net profit| OWNERS
-    GRAI -->|increase value| EQ
 ```
 
 **GrindURUS** utilizes the fluctuations. On blue chip assets software trades the weekly ±3–8% (and larger alt) swings through real terminals — Binance, CoW, LiFi, Jupiter, etc.
 
 Deposit, get **GRAI**: a dollar book-priced share of the fund while capital grinds in **Grinders** custodian wallets. When profit is **`distribute`**d on-chain, anybody can **claim** it on behalf of an account.
-
-**GRS** is separate: one billion tokens, one genesis, fund share on the fee layer — not a second way into the same capital.
 
 ## What we believe
 

@@ -6,7 +6,7 @@
 - **Volume books** — L1/L2 claimable USD books per seat
 - **Cashflow NFT** — Metaplex 1/1 per locker; OTC-transferable claim payee
 - **Affiliate payouts** on locker `claim`
-- **`beneficiar`** — net remainder (target: GRS FeeVault)
+- **`beneficiar`** — net remainder
 
 ## Revenue distribution
 
@@ -16,8 +16,6 @@ On-chain split has two stages:
 
 1. **`distribute`** — yield → dividend reserve (lockers) + Treasury inventory.
 2. **`claim`** — when lockers take dividends, Treasury pays affiliates from inventory and sends the rest to `beneficiar`.
-
-Buybacks are an **intended ops use** of beneficiar net (~30 of gross), not a separate on-chain cut.
 
 ```mermaid
 ---
@@ -35,8 +33,7 @@ Treasury 50%,Affiliates 5%,5
 Treasury 50%,Gross Profit 45%,45
 Affiliates 5%,L1 referrer 4%,4
 Affiliates 5%,L2 referrer 1%,1
-Gross Profit 45%,GRS Buyback 30%,30
-Gross Profit 45%,Net Profit 15%,15
+Gross Profit 45%,Net Profit 45%,45
 ```
 
 | Slice | Default | When |
@@ -83,7 +80,7 @@ Blocked during liquidation. Cannot create referral loops.
 
 ## Beneficiar
 
-Net treasury remainder after affiliate slices flows to **`beneficiar`**. Launch default: `GRAI.owner()`. Target: protocol FeeVault distributing to **GRS** stakers.
+Net treasury remainder after affiliate slices flows to **`beneficiar`**. Launch default: `GRAI.owner()`.
 
 ## GRAI-TREASURY NFT
 

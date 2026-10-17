@@ -13,7 +13,6 @@
 | Path | Feature |
 | ---- | ------- |
 | `/grai` | Deposit, lock, claim, referral tree |
-| `/grs` | Cap table, sales, buy, bridge |
 | `/grinders` | Custodians, allocate |
 | `/backtest` | Volatility backtest calculator |
 | `/affiliates` | Affiliate overview |
@@ -23,7 +22,6 @@
 | Token | JSON |
 | ----- | ---- |
 | GRAI | [grai.json](https://grindurus.xyz/grai.json) |
-| GRS | [grs.json](https://grindurus.xyz/grs.json) |
 | Treasury NFT | [treasury.json](https://grindurus.xyz/treasury.json) |
 
 ## Community

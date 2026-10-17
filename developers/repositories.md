@@ -5,8 +5,8 @@ Grindurus is a **multi-repo product** under [github.com/grindurus](https://githu
 | Repository | Contents |
 | ---------- | -------- |
 | **grindurus-protocol** | GrindURUS strategy, Grinder, Boss, `adapters/`, Docker, Boss UI |
-| **grindurus-evm** | Solidity: GRAI, Grinders, Treasury, GRS, custodians |
-| **grindurus-solana** | Anchor: grai, grinders, grs, lifi_custody |
+| **grindurus-evm** | Solidity: GRAI, Grinders, Treasury, custodians |
+| **grindurus-solana** | Anchor: grai, grinders, lifi_custody |
 | **grindurus-app** | Protocol app + marketing landing ([grindurus.xyz](https://grindurus.xyz)) |
 | **grindurus-docs** | This GitBook (docs.grindurus.xyz) |
 | **gateway** | Edge reverse proxy (Traefik) |
@@ -19,7 +19,6 @@ Local workspace often clones all trees as siblings under one `grindurus/` folder
 | Doc | Path |
 | --- | ---- |
 | GRAI mechanics | [protocol/grai/mechanics.md](https://docs.grindurus.xyz/protocol/grai/mechanics) |
-| GRS mechanics | [protocol/grs/mechanics.md](https://docs.grindurus.xyz/protocol/grs/mechanics) |
 | Grinders mechanics | [protocol/grinders/mechanics.md](https://docs.grindurus.xyz/protocol/grinders/mechanics) |
 | Capability checklist | `FUNCTIONALITY.md` (monorepo root) |
 | Manifesto | [general/manifesto.md](https://docs.grindurus.xyz/general/manifesto) |

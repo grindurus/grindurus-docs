@@ -1,6 +1,6 @@
 # Overview
 
-GrindURUS is **extended accounting** with an on-chain fund layer (**GRAI**). See [Protocol overview](../protocol/overview.md), [Grinders off-chain](../protocol/grinders/off-chain.md), [GRAI](../protocol/grai/overview.md), [GRS](../protocol/grs/overview.md), [Treasury](../protocol/grai/treasury-and-affiliates.md).
+GrindURUS is **extended accounting** with an on-chain fund layer (**GRAI**). See [Protocol overview](../protocol/overview.md), [Grinders off-chain](../protocol/grinders/off-chain.md), [GRAI](../protocol/grai/overview.md), [Treasury](../protocol/grai/treasury-and-affiliates.md).
 
 ## Two layers
 
@@ -11,7 +11,7 @@ GrindURUS is **extended accounting** with an on-chain fund layer (**GRAI**). See
 
 Adapters connect to Binance, CoW Protocol, LiFi, Jupiter, and other terminals. **Boss** starts and monitors Grinder containers.
 
-**On-chain (evm + solana repos)** — the fund and governance:
+**On-chain (evm + solana repos)** — the fund:
 
 
 | Contract / program | Token or NFT      | Role                         |
@@ -19,7 +19,6 @@ Adapters connect to Binance, CoW Protocol, LiFi, Jupiter, and other terminals. *
 | GRAI               | GRAI (6 decimals) | USD book-priced share        |
 | Grinders           | GRINDERS NFT      | Custodian wallets + reserve  |
 | Treasury           | GRAI-TREASURY NFT | Affiliate tree + fee routing |
-| GRS                | GRS (1B cap)      | Protocol equity              |
 
 
 
@@ -33,18 +32,6 @@ Adapters connect to Binance, CoW Protocol, LiFi, Jupiter, and other terminals. *
 5. **Claim** dividends, or exit via secondary market / unlock / liquidation redeem.
 
 
-
-## GRAI vs GRS
-
-
-|              | **GRAI**                          | **GRS**                        |
-| ------------ | --------------------------------- | ------------------------------ |
-| Supply       | Elastic (grows with deposits)     | Fixed **1 billion** at genesis |
-| Price anchor | USD book (`totalValue`)           | Market + protocol fee claim    |
-| Use          | Fund share, lock, vote, dividends | Equity, revenue routing target |
-
-
-GRAI is the **deposit receipt** for the volatility fund. GRS is **protocol stock**, not a second fund share.
 
 ## Architecture
 
@@ -98,7 +85,7 @@ GRAI actors: locker, voter, briber, referrer, poacher
 
 ### Networks
 
-The same logic is implemented on **EVM** (Solidity, UUPS where noted) and **Solana** (Anchor). GRS uses **LayerZero OFT** for cross-chain representation: one **home** chain mints 1B; **spokes** bridge 1:1.
+The same logic is implemented on **EVM** (Solidity, UUPS where noted) and **Solana** (Anchor). Each chain runs its own GRAI fund (local NAV — no fund-share bridge).
 
 ### Repositories
 
@@ -123,7 +110,7 @@ If nobody qualifies for dividends (`totalLocked == totalVoted`), the dividend cu
 
 ### Revenue flow
 
-Per **100%** of reported yield (illustrative; GRAI defaults above): **Dividends 50%** and **Treasury 50%** at `distribute`. On locker `claim`, the treasury cut splits into **Affiliates 5%** of gross (L1/L2 **80/20** → **4%** / **1%**) and **Gross Profit 45%** to `beneficiar`. Of that net, **GRS Buyback ~30%** of gross is an intended ops use — **not** a separate on-chain cut — leaving **Net Profit ~15%** retained.
+Per **100%** of reported yield (illustrative; GRAI defaults above): **Dividends 50%** and **Treasury 50%** at `distribute`. On locker `claim`, the treasury cut splits into **Affiliates 5%** of gross (L1/L2 **80/20** → **4%** / **1%**) and **Gross Profit 45%** to `beneficiar` (net profit retained / ops).
 
 ```mermaid
 ---
@@ -141,10 +128,8 @@ Treasury 50%,Affiliates 5%,5
 Treasury 50%,Gross Profit 45%,45
 Affiliates 5%,L1 referrer 4%,4
 Affiliates 5%,L2 referrer 1%,1
-Gross Profit 45%,GRS Buyback 30%,30
-Gross Profit 45%,Net Profit 15%,15
+Gross Profit 45%,Net Profit 45%,45
 ```
-
 
 
 
@@ -160,7 +145,7 @@ From the treasury cut:
 | **Remainder**     | ~45% of gross yield             | `Treasury.beneficiar` — **net profit**        |
 
 
-At launch `beneficiar` is typically `GRAI.owner()`. Part of net profit is intended for **open-market GRS buybacks** (~30% of distributed yield). Bought GRS return to **TokenSales** and are relisted at a **discount** — see [Token sales](../protocol/grs/token-sales.md).
+At launch `beneficiar` is typically `GRAI.owner()`.
 
 ### Role ladder (GRAI)
 
@@ -181,28 +166,8 @@ holder → lock() → locker (unvoted) → vote() → voter ← bribe() ← brib
 
 
 
-### GRS at a glance
-
-- **1,000,000,000** fixed supply; single genesis on **home**.
-- **10%** (100M) Token sales + **5%** (50M) IDOs — public `buy` book, Instant gate (same TokenSales soft plan).
-- **20%** each: Investments, Affiliates, Team, Ecosystem, Foundation.
-- Cap-table `**grant**` is `owner` on home; spokes revert `NotHome`.
-
-Full bucket table: [GRS cap table](../protocol/grs/cap-table.md).
-
-### What GRS is not
-
-- Not a deposit receipt (that is GRAI).
-- Not a custodian operator license (Grinders NFT).
-- Not the affiliate cashflow NFT (GRAI-TREASURY).
-- Not minted from yield — fee surplus only.
-
-
-
 ### Invariants (short)
 
 1. GRAI book (`totalValue`) moves on deposit / redeem, not on custodian trades until `distribute`.
-2. Circulating GRS never exceeds 1B across home + spokes.
-3. `totalVoted ≤ totalLocked ≤ totalSupply`.
-4. Liquidation open is **2-of-2**: vote quorum + Grinders `confirmed`.
-
+2. `totalVoted ≤ totalLocked ≤ totalSupply`.
+3. Liquidation open is **2-of-2**: vote quorum + Grinders `confirmed`.

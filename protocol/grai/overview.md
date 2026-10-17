@@ -2,13 +2,14 @@
 
 **GRAI** (*Grinders Artificial Index*) is a USD-denominated fund-share token (6 decimals on-chain).
 
-Depositors mint GRAI at **book value**:
+Depositors mint against **book**, optionally at a compounding **mint premium** ask (default +5%/year after year 0):
 
 ```
-graiOut = depositValue × totalSupply / totalValue
+book    = depositValue × totalSupply / totalValue
+graiOut = book × 10_000 / priceBps     # priceBps = 10_000 while year 0 / premium off
 ```
 
-On the first deposit (`totalValue == 0`), mint is 1:1 with USD value (1 GRAI ≈ $1 book).
+Full deposit USD still credits `totalValue`. First deposit (`totalValue == 0`) is 1:1. Details: [Deposit and mint](deposit-and-mint.md).
 
 ## What GRAI is
 
@@ -18,7 +19,6 @@ On the first deposit (`totalValue == 0`), mint is 1:1 with USD value (1 GRAI ≈
 
 ## What GRAI is not
 
-- Not GRS (fixed 1B equity token).
 - Not a yield vault with instant withdraw — see [Liquidation](https://docs.grindurus.xyz/protocol/grai/liquidation) for the shutdown path.
 
 ## Core flows

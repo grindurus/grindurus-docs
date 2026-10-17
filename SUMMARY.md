@@ -11,7 +11,6 @@
 ## Protocol
 
 * [Overview](protocol/overview.md)
-* [Cross-chain markets](protocol/cross-chain-pricing.md)
 
 ### GRAI
 
@@ -21,14 +20,6 @@
 * [Liquidation](protocol/grai/liquidation.md)
 * [Treasury and affiliates](protocol/grai/treasury-and-affiliates.md)
 * [Mechanics](protocol/grai/mechanics.md)
-
-### GRS
-
-* [Overview](protocol/grs/overview.md)
-* [Cap table](protocol/grs/cap-table.md)
-* [Bridge (home and spokes)](protocol/grs/bridge.md)
-* [Token sales](protocol/grs/token-sales.md)
-* [Mechanics](protocol/grs/mechanics.md)
 
 ### Grinders
 
