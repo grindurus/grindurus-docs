@@ -100,7 +100,7 @@ Historical runs live under `grindurus-protocol/test/`:
 - `backtest_direct.py` / `backtest_inverse.py` — single-mode URUS on klines
 - `backtest_grinder.py` — full Grinder + backtest adapter
 
-The public app exposes a paid backtest calculator at [app.grindurus.xyz/backtest](https://app.grindurus.xyz/backtest).
+The public app exposes a paid backtest calculator at [grindurus.xyz/backtest](https://grindurus.xyz/backtest).
 
 ### Ecosystem services
 

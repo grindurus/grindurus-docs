@@ -72,7 +72,7 @@ Instead, liquidation depends on an implicit heartbeat:
 
 ## App
 
-[app.grindurus.xyz/grinders](https://app.grindurus.xyz/grinders) — custody balances, register, allocate (when wired).
+[grindurus.xyz/grinders](https://grindurus.xyz/grinders) — custody balances, register, allocate (when wired).
 
 Spec: [GRINDERS mechanics](https://docs.grindurus.xyz/protocol/grinders/mechanics)
 

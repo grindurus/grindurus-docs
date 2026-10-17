@@ -90,6 +90,6 @@ Metadata: [treasury.json](https://grindurus.xyz/treasury.json)
 
 ## App
 
-Referral tree UI: [app.grindurus.xyz/grai](https://app.grindurus.xyz/grai) (manage / affiliates sections).
+Referral tree UI: [grindurus.xyz/grai](https://grindurus.xyz/grai) (manage / affiliates sections).
 
 Spec: [Treasury.sol](https://github.com/grindurus/grindurus-evm/blob/main/src/Treasury.sol) · tests: `TreasuryReferrals.t.sol`, `TreasuryPoach.t.sol`

@@ -6,7 +6,6 @@ GrindURUS runs a dual-sided strategy on crypto pairs: buy low / sell high and se
 
 ## What lives here
 
-- [Quickstart](general/quickstart.md) — deposit GRAI in the app
 - [Manifesto](general/manifesto.md) — why GrindURUS exists
 - [Overview](general/overview.md) — architecture, tokenomics, GRAI roles
 - [Protocol](protocol/overview.md) — why GRAI, Grinders, and Treasury exist
@@ -17,7 +16,7 @@ GrindURUS runs a dual-sided strategy on crypto pairs: buy low / sell high and se
 ## Products
 
 - Landing — [grindurus.xyz](https://grindurus.xyz)
-- App — [app.grindurus.xyz](https://app.grindurus.xyz)
+- App — [grindurus.xyz/grai](https://grindurus.xyz/grai)
 - Sources — [github.com/grindurus](https://github.com/grindurus)
 
 *Last updated: August 2026. Pre-mainnet; details may change before TGE.*

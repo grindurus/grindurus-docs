@@ -1,7 +1,6 @@
 # Table of contents
 
 * [Welcome](README.md)
-* [Quickstart](general/quickstart.md)
 
 ## General
 

@@ -15,6 +15,7 @@ redirects:
   protocol/trading-infrastructure: protocol/grinders/off-chain.md
   general/cross-chain-pricing: protocol/overview.md
   protocol/cross-chain-pricing: protocol/overview.md
+  general/quickstart: README.md
   # Old top-level GRAI / Grinders paths
   grai/overview: protocol/grai/overview.md
   grai/deposit-and-mint: protocol/grai/deposit-and-mint.md
