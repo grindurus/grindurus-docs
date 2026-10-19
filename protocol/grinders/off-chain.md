@@ -48,12 +48,12 @@ Off-chain backtests use historical klines without touching GRAI.
 
 ## Infrastructure
 
-The **[grindurus-protocol]** repo runs the off-chain stack.
+The **[grindurus-offchain](https://github.com/grindurus/grindurus-offchain)** repo runs the off-chain stack.
 
 ### Layout
 
 ```
-grindurus-protocol/
+grindurus-offchain/
 ├── grindurus/               # Grinder, GrindURUS, GrindLedger
 │   ├── core/                # Adapter, Ledger, Mode, URUS
 │   └── adapters/            # Terminal plugins
@@ -95,7 +95,7 @@ Each grinder is reachable at `grinder-<id>.<boss>.localhost` behind Traefik in l
 
 ### Backtest
 
-Historical runs live under `grindurus-protocol/test/`:
+Historical runs live under `grindurus-offchain/test/`:
 
 - `backtest_direct.py` / `backtest_inverse.py` — single-mode URUS on klines
 - `backtest_grinder.py` — full Grinder + backtest adapter

@@ -4,7 +4,7 @@ Grindurus is a **multi-repo product** under [github.com/grindurus](https://githu
 
 | Repository | Contents |
 | ---------- | -------- |
-| **grindurus-protocol** | GrindURUS strategy, Grinder, Boss, `adapters/`, Docker, Boss UI |
+| **grindurus-offchain** | GrindURUS strategy, Grinder, Boss, `adapters/`, Docker, Boss UI |
 | **grindurus-evm** | Solidity: GRAI, Grinders, Treasury, custodians |
 | **grindurus-solana** | Anchor: grai, grinders, lifi_custody |
 | **grindurus-app** | Protocol app + marketing landing ([grindurus.xyz](https://grindurus.xyz)) |
