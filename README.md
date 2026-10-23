@@ -10,7 +10,7 @@ GrindURUS runs a dual-sided strategy on crypto pairs: buy low / sell high and se
 - [Overview](general/overview.md) — architecture, tokenomics, GRAI roles
 - [Protocol](protocol/overview.md) — why GRAI, Grinders, and Treasury exist
 - [GRAI](protocol/grai/overview.md) — deposit, lock, dividends, liquidation · [mechanics](protocol/grai/mechanics.md)
-- [Grinders](protocol/grinders/overview.md) — custodian NFTs · [off-chain](protocol/grinders/off-chain.md) · [mechanics](protocol/grinders/mechanics.md)
+- [Grinders](protocol/grinders/overview.md) — custodian NFTs · [strategy](protocol/grinders/strategy.md) · [mechanics](protocol/grinders/mechanics.md)
 - [Developers](developers/repositories.md) — repos, EVM, Solana
 
 ## Products

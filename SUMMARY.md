@@ -14,16 +14,12 @@
 ### GRAI
 
 * [Overview](protocol/grai/overview.md)
-* [Deposit and mint](protocol/grai/deposit-and-mint.md)
-* [Lock, vote, dividends](protocol/grai/lock-vote-and-dividends.md)
-* [Liquidation](protocol/grai/liquidation.md)
-* [Treasury and affiliates](protocol/grai/treasury-and-affiliates.md)
 * [Mechanics](protocol/grai/mechanics.md)
 
 ### Grinders
 
 * [Overview](protocol/grinders/overview.md)
-* [Off-chain](protocol/grinders/off-chain.md)
+* [Strategy](protocol/grinders/strategy.md)
 * [Mechanics](protocol/grinders/mechanics.md)
 
 ## Developers

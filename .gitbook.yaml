@@ -9,19 +9,24 @@ redirects:
   general/overview/architecture: general/overview.md
   general/overview/tokenomics: general/overview.md
   protocol/overview: protocol/overview.md
-  protocol/offchain-grinder: protocol/grinders/off-chain.md
-  protocol/strategy: protocol/grinders/off-chain.md
-  protocol/infrastructure: protocol/grinders/off-chain.md
-  protocol/trading-infrastructure: protocol/grinders/off-chain.md
+  protocol/offchain-grinder: protocol/grinders/strategy.md
+  protocol/strategy: protocol/grinders/strategy.md
+  protocol/infrastructure: protocol/grinders/strategy.md
+  protocol/trading-infrastructure: protocol/grinders/strategy.md
+  protocol/grinders/off-chain: protocol/grinders/strategy.md
   general/cross-chain-pricing: protocol/overview.md
   protocol/cross-chain-pricing: protocol/overview.md
   general/quickstart: README.md
   # Old top-level GRAI / Grinders paths
   grai/overview: protocol/grai/overview.md
-  grai/deposit-and-mint: protocol/grai/deposit-and-mint.md
-  grai/lock-vote-and-dividends: protocol/grai/lock-vote-and-dividends.md
-  grai/liquidation: protocol/grai/liquidation.md
-  grai/treasury-and-affiliates: protocol/grai/treasury-and-affiliates.md
+  grai/deposit-and-mint: protocol/grai/overview.md
+  grai/lock-vote-and-dividends: protocol/grai/overview.md
+  grai/liquidation: protocol/grai/overview.md
+  protocol/grai/liquidation: protocol/grai/overview.md
+  grai/treasury-and-affiliates: protocol/grai/overview.md
+  protocol/grai/deposit-and-mint: protocol/grai/overview.md
+  protocol/grai/lock-vote-and-dividends: protocol/grai/overview.md
+  protocol/grai/treasury-and-affiliates: protocol/grai/overview.md
   # Retired GRS pages → protocol overview
   grs/overview: protocol/overview.md
   grs/cap-table: protocol/overview.md

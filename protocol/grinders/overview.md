@@ -1,79 +1,137 @@
 # Grinders overview
 
-**Grinders** is the protocol’s **junior-capital vault and custodian registry**.
+**Grinders** is the on-chain custody shell for fund capital. It holds the **reserve**, mints **GRINDERS** custodian NFTs (one wallet each), and moves money in and out of those wallets. It does **not** pick trades or venues — that is off-chain. See [Protocol overview](../overview.md) · [Strategy](strategy.md). Full write-up: [Grinders mechanics](mechanics.md).
 
-| Piece | Role |
-| ----- | ---- |
-| **Reserve** | Holds assets from `GRAI.deposit` until allocated |
-| **GRINDERS NFT** | One ERC-721 / Metaplex NFT per custodian wallet |
-| **Custodian proxy** | Per-NFT wallet that trades and returns yield |
+| Chain | Contract / program |
+| ----- | ------------------- |
+| EVM | `Grinders.sol` + `Custodian` kinds (UUPS) |
+| Solana | Grinders / custody programs |
 
-GRAI book (`totalValue`) does **not** move when custodians trade — only when yield is **`distribute`**d or on deposit / redeem / revive.
-
-## Capital path
+GRAI book (`totalValue`) does **not** move when custodians trade. Book moves on deposit / redeem / revive; yield enters GRAI only when someone **`distribute`**s it.
 
 ```
-GRAI.deposit → Grinders reserve
-       │
-       │ allocate(custodian, asset, amount)   [Grinders owner]
-       ▼
-Custodian wallet  ──trade──►  balances change
-       │
-       ├── distribute(yield) ──► GRAI.distribute
-       └── deallocate(principal) ──► back to reserve
+GRAI.deposit ──► Grinders reserve ──allocate──► Custodian NFT wallet
+                                                   │ trade (off-chain / NFT owner)
+                      ◄──deallocate──┘             │
+                      ◄──distribute(yield)─────────┘ ──► GRAI.distribute
 ```
 
-There is **no on-chain allocate ledger**. Track net issuance off-chain:
+---
+
+## 1. Reserve
+
+Deposits land here. Idle assets sit on Grinders until a toreador allocates them to a custodian. Unlock fees and poach fees also arrive as **GRAI tokens** on Grinders — ordinary free GRAI, not yield and not part of the allocate trail.
 
 ```
-net ≈ Σ Allocate − Σ Deallocate
+Users ──deposit──► GRAI ──assets──► Grinders reserve
+Users ──unlock──► GRAI ──penalty GRAI──► Grinders (free GRAI balance)
 ```
 
-## Custodian kinds (EVM)
+---
 
-Registered under `keccak256("grindurus.custodian.<name>")`:
+## 2. Mint and register
 
-| Kind | Contract | Trading |
-| ---- | -------- | ------- |
-| `explicit_swap` | `PathCustodian` | Router call + price limit |
-| `cow` | `CoWCustodian` | CoW Protocol EIP-1271 |
-| `lifi` | `LiFiCustodian` | LiFi routing (stub / WIP) |
+Owner registers a custodian **kind** (implementation), then `mint`s a proxy wallet + NFT, or `register`s a pre-deployed proxy. NFT owner = who may trade that wallet. Pair (`base` / `quote`) is set at mint or via `setAssets`.
 
-Solana: swap CPI via Grinders program; Jupiter / LiFi custody paths in migrations.
+```
+Owner ──set(kind, impl)──► Grinders
+Owner ──mint(kind, nftOwner, base, quote)──► Custodian proxy + GRINDERS NFT
+```
 
-## Roles
+---
 
-| Role | Powers |
-| ---- | ------ |
-| **Grinders owner** | `set`, `mint`, `allocate`, `deallocate`, `distribute`, `setGrindPeriod` |
-| **NFT owner** | Run swaps on that custodian |
-| **GRAI** | `heartbeat` (on `revive`) |
+## 3. Allocate
 
-During liquidation: custodian trading blocked; `Grinders.liquidate` sweeps wallets to GRAI / reserve.
+Toreador moves reserve inventory into a registered custodian. Emits `Allocate`. There is **no** on-chain allocate ledger — track net off-chain.
 
-## Unlock penalties
+```
+Reserve ──allocate(custodian, asset, amount)──► Custodian wallet
+                                                      │
+                                                      └── event Allocate
+```
 
-`GRAI.unlock` sends the flat unlock fee (`unlockPenaltyBps`) as **GRAI tokens** to the Grinders contract. Grinders holds that balance as ordinary ERC20 inventory (not yield, not allocate ledger). It is separate from junior capital assets.
+```
+net ≈ Σ Allocate − Σ Deallocate   (per custodian, per asset)
+```
 
-## Heartbeat gate
+---
 
-Grinders no longer uses a manual `confirm` flag for liquidation.
-Instead, liquidation depends on an implicit heartbeat:
+## 4. Trade
 
-- `heartbeatAt` stores the last operational activity timestamp.
-- `grindingPeriod` defines how long Grinders is considered active.
-- `grinding()` is true while `block.timestamp <= heartbeatAt + grindingPeriod`.
-- GRAI can open liquidation only when quorum is reached **and** `!grinding()`.
+NFT owner runs the kind-specific API (swap, CoW order, …). Balances of base / quote / ETH change on the wallet. Profit stays on the custodian until someone reports it.
 
-## NFT metadata
+| Kind (label family) | Contract | Trading |
+| ------------------- | -------- | ------- |
+| `…path` | `PathCustodian` | Router calldata + price limit |
+| `…swap` | `SwapCustodian` | Swap path helper |
+| `…cow` | `CoWCustodian` | CoW Protocol EIP-1271 |
+| `…lifi` | `LiFiCustodian` | LiFi routing |
+| `…aave_v3` | `AaveV3Custodian` | Aave V3 supply / borrow |
 
-- Collection URI: ERC-1046 → `https://grindurus.xyz/metadata.json`
-- Per-custodian: on-chain generated art (`GrinderArt` on EVM)
+```
+Custodian wallet ──trade──► new balances (still on wallet)
+```
 
-## App
+---
 
-[grindurus.xyz/grinders](https://grindurus.xyz/grinders) — custody balances, register, allocate (when wired).
+## 5. Distribute
 
-Spec: [GRINDERS mechanics](https://docs.grindurus.xyz/protocol/grinders/mechanics)
+Toreador reports **yield** from a custodian into GRAI. That refreshes the Grinders heartbeat and runs GRAI’s 50/50 cut (dividends / treasury). Mis-reporting principal as yield is a governance concern — there is no on-chain profit oracle.
 
-Trading stack (Boss, adapters, GrindURUS): [Off-chain](https://docs.grindurus.xyz/protocol/grinders/off-chain)
+```
+Custodian ──Grinders.distribute──► GRAI.distribute
+                                      ├── Dividends ~50%
+                                      └── Treasury ~50%
+```
+
+---
+
+## 6. Deallocate
+
+Toreador pulls inventory from a custodian back to the reserve. Not capped by prior allocates — after swaps the token or size may differ. Blocked while GRAI liquidation is open.
+
+```
+Custodian ──deallocate──► Grinders reserve
+                               │
+                               └── event Deallocate
+```
+
+---
+
+## 7. Heartbeat
+
+Ops activity keeps Grinders “alive.” GRAI can open liquidation only when vote quorum is met **and** Grinders looks stale.
+
+```
+heartbeatAt = last allocate / deallocate / distribute / GRAI.heartbeat (revive)
+grinding()  = now ≤ heartbeatAt + grindPeriod     // default 7 days
+```
+
+```
+Alive (grinding)     ████████████░░░░  within grindPeriod
+Stale (!grinding)    ░░░░░░░░░░░░░░░░  GRAI may open if also quorum
+```
+
+---
+
+## 8. Liquidation sweeps
+
+After GRAI opens **REDEMPTION**, anyone may page `Grinders.liquidate`. Custodian trading / distribute / deallocate are blocked. Keepers pull wallets and idle reserve onto GRAI for redeem.
+
+```
+GRAI.liquidate (quorum + !grinding)
+        │
+        ▼
+Grinders.liquidate(fromId, toId)
+        ├── fromId < toId  → page custodian wallets → GRAI
+        └── fromId ≥ toId  → sweep idle listed balances on Grinders → GRAI
+```
+
+---
+
+## Read next
+
+- [Grinders mechanics](mechanics.md) — same sections, expanded (formulas, examples, EVM)
+- [Strategy](strategy.md) — grind, store, swap; adapters
+- [GRAI overview](../grai/overview.md) — shares, dividends, liquidation open
+- [Protocol overview](../overview.md) — GRAI vs Grinders

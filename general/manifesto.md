@@ -42,7 +42,6 @@ Deposit, get **GRAI**: a dollar book-priced share of the fund while capital grin
    **A**, **Q** — balances; **a**, **q** — structural alpha; **P**, **p** — prices. We build on math, not on a new story every quarter.
 2. **DeFi & tokenized assets.** Over the next decade, tokenized real-world and on-chain inventory will grow from a niche into a large **24/7** market — open rules on-chain, not a black-box claim on someone else's balance sheet. Volatility that never sleeps needs infrastructure that never stops grinding: book-priced shares, reported profit, governed fund, and automated market taking while holders stay passive.
 3. **Intents & composable terminals.** Markets are moving from open orders to signed intents and solvers; liquidity is split across chains, venues, and networks. What scales is not another single-venue bot but a layer that executes both sides wherever liquidity appears — CEX, AMM, or intent network — with the same math underneath.
-4. **Agent economy.** On-chain agents will settle, rebalance, and trade at scale — but not every wallet can run heavy models. The stack needs market taking from simple rules and math with O(1), not from massive compute per tick on tensor processing units.
 
 ## We are not
 

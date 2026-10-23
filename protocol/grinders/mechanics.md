@@ -1,230 +1,399 @@
-# Grinders
+# Grinders mechanics
 
-Report derived from on-chain logic in [`Grinders.sol`](https://github.com/grindurus/grindurus-evm/blob/main/src/Grinders.sol), [`Custodian.sol`](https://github.com/grindurus/grindurus-evm/blob/main/src/Custodian.sol), and custodian kinds under [`src/custodians/`](https://github.com/grindurus/grindurus-evm/blob/main/src/custodians) (EVM implementation, August 2026). GRAI share / dividend / auction mechanics: [GRAI mechanics](https://docs.grindurus.xyz/protocol/grai/mechanics).
+Expanded write-up of [Grinders overview](overview.md). Same section order and topics; here: diagrams, formulas, worked examples, and the **EVM entrypoints** each mechanic maps to.
+
+The key words **MUST**, **MUST NOT**, **REQUIRED**, **SHALL**, **SHALL NOT**, **SHOULD**, **SHOULD NOT**, **RECOMMENDED**, **NOT RECOMMENDED**, **MAY**, and **OPTIONAL** are as in [RFC 2119](https://www.rfc-editor.org/rfc/rfc2119) / [RFC 8174](https://www.rfc-editor.org/rfc/rfc8174).
+
+Derived from [Grinders.sol](https://github.com/grindurus/grindurus-evm/blob/main/src/Grinders.sol), [Custodian.sol](https://github.com/grindurus/grindurus-evm/blob/main/src/Custodian.sol), and kinds under [`src/custodians/`](https://github.com/grindurus/grindurus-evm/blob/main/src/custodians) (EVM, October 2026). GRAI share / dividend / liquidation open: [GRAI mechanics](../grai/mechanics.md). Strategy layer: [Strategy](strategy.md).
+
+Map: [protocol.svg](../protocol.svg) · [protocol.png](../protocol.png). Access, invariants, and ABI tables live in [§A–§C](#a-access-control).
 
 ---
 
-## 1. What Grinders is
+## 0. Executive summary
 
-**Grinders** is the protocol’s **junior-capital vault and custodian registry**:
+**Grinders** is the junior-capital vault and custodian registry. Reserve holds deposits; each **GRINDERS** NFT is a trading wallet; toreador moves capital and reports yield; NFT owner trades. Strategy decisions live **off-chain**.
 
-| Piece | Role |
-| ----- | ---- |
-| **Reserve** | Holds deposited assets from `GRAI.deposit` (senior book stays on Grinders until allocated) |
-| **ERC-721** | Collection **Grinders Custodians** (`GRINDERS`) — one NFT per registered custodian wallet |
-| **Custodian proxies** | Per-NFT ERC-1967 wallets that trade `base` ↔ `quote` and return profit to GRAI |
-| **Issuance trail** | `Allocate` / `Deallocate` events — off-chain net = Σ allocate − Σ deallocate (no on-chain ledger) |
+```
+deposit → reserve → allocate → custodian trade → distribute(yield) → GRAI
+                         ▲                            │
+                         └── deallocate (principal) ──┘
+```
 
-GRAI mints shares against book; **working capital that earns yield lives in Grinders → custodian wallets**. Yield does **not** change `GRAI.totalValue` until it is reported through `GRAI.distribute` (auction / dividends / treasury).
+| § | Mechanic | One-liner | Primary EVM |
+| - | -------- | --------- | ----------- |
+| [1](#1-reserve) | Reserve | Idle capital + fee GRAI on Grinders | (receives from GRAI) |
+| [2](#2-mint-and-register) | Mint and register | Kind impl → proxy + NFT | `set` / `mint` / `register` |
+| [3](#3-allocate) | Allocate | Reserve → custodian; heartbeat | `allocate` |
+| [4](#4-trade) | Trade | NFT owner kind API | custodian `swap` / CoW / … |
+| [5](#5-distribute) | Distribute | Custodian yield → GRAI; heartbeat | `distribute` |
+| [6](#6-deallocate) | Deallocate | Custodian → reserve; heartbeat | `deallocate` |
+| [7](#7-heartbeat) | Heartbeat | Stale limb of GRAI liquidation | `grinding` / `heartbeat` |
+| [8](#8-liquidation-sweeps) | Liquidation sweeps | Page wallets / idle reserve → GRAI | `liquidate` |
 
-Separately, `GRAI.unlock` transfers the flat unlock penalty (`unlockPenaltyBps`) as **GRAI ERC20** onto Grinders. That balance is ordinary free GRAI held by the Grinders contract — not junior capital, not distributable yield, and not part of the allocate ledger.
+**Core rules**
+
+- GRAI book does **not** move on trades — only on deposit / redeem / revive; yield enters via `GRAI.distribute`.
+- No on-chain allocate ledger — use `Allocate` / `Deallocate` events.
+- Day-to-day capital moves = **toreador**; registry / mint = **owner** (`grai.owner()`); trades = **NFT owner**.
+- GRAI opens liquidation only with vote quorum **and** `!grinders.grinding()`.
+
+### Economic incentives
+
+| Participant | Incentive |
+| ----------- | --------- |
+| **Protocol owner** | Register kinds, mint custodians, set toreador / `grindPeriod` |
+| **Toreador** | Allocate / deallocate / distribute; keep heartbeat alive; report yield |
+| **NFT owner (Grinder)** | Trade allocated inventory; grow wallet balances |
+| **GRAI lockers** | Receive dividend cut when toreador distributes yield |
+| **Treasury / beneficiar** | Treasury cut of distributed yield |
+| **Liquidation keepers** | Page `liquidate` after GRAI opens REDEMPTION |
+| **Depositors** | Capital sits in reserve / custodians until redeem |
+
+---
+
+## 1. Reserve
+
+Deposits from `GRAI.deposit` land on Grinders. Idle assets earn nothing until allocated. Unlock / poach fees arrive as **GRAI ERC20** on Grinders — free inventory, not yield, not part of allocate accounting.
+
+### EVM
+
+| Contract | Function | Role |
+| -------- | -------- | ---- |
+| `GRAI` | `deposit` / `unlock` / `poach` / `revive` | Push assets or GRAI / leftovers onto Grinders |
+| `Grinders` | `balance(asset)` / `receive()` | Reserve inventory views / ETH |
+
+### Flow
 
 ```
 Users ──deposit──► GRAI ──assets──► Grinders reserve
-                                      │
-                                      │ allocate (Grinders owner)
-                                      ▼
-                               Custodian NFT wallet
-                                      │
-                                      │ trade base ↔ quote (NFT owner)
-                                      │
-                    ┌─────────────────┴─────────────────┐
-                    ▼                                   ▼
-        distribute(yield) via Grinders          deallocate(principal) via Grinders
-                    │                                   │
-                    ▼                                   ▼
-              GRAI cuts                           Grinders reserve
-
-Users ──unlock──► GRAI ──penalty GRAI──► Grinders (free GRAI balance)
+Users ──unlock──► GRAI ──penalty GRAI──► Grinders (free GRAI)
+revive leftovers ──────────────────────► Grinders reserve
 ```
 
----
-
-## 2. How income is generated
-
-Grinders itself does **not** run a yield strategy. Income is produced by **custodian operators** (NFT owners) trading allocated inventory; the **Grinders protocol owner** then reports profit into GRAI or pulls capital back.
-
-### 2.1 Capital path
-
-1. Depositor calls `GRAI.deposit` → asset is paid to **Grinders** (`grinders`), book `totalValue` rises, shares mint.
-2. Grinders **owner** calls `allocate(custodian, asset, amount)` → moves reserve inventory into a registered custodian wallet; emits `Allocate`.
-3. Custodian NFT **owner** trades (kind-specific): swaps, CoW orders, LiFi routes, etc. Balances of `baseAsset` / `quoteAsset` (and optionally ETH) change on the wallet.
-4. When booking **profit** for the protocol:
-   - Grinders owner → `Grinders.distribute(custodian, asset, yieldAmount)` → `Custodian.distribute` → `GRAI.distribute` → cuts (unvoted dividends / treasury).
-5. When returning **working capital** (not yield accounting):
-   - Grinders owner → `Grinders.deallocate(custodian, asset, amount)` → `Custodian.deallocate` → assets back to the Grinders reserve; emits `Deallocate`.
-
-There is **no on-chain “profit = balance − allocated” gate** and **no allocate ledger**. Custodians may swap principal between assets. `distribute` / `deallocate` are intentionally uncapped by prior allocates; misuse is a monitoring / governance concern. Track issuance with indexed events:
-
-```text
-event Allocate(address indexed custodian, address indexed asset, uint256 amount);
-event Deallocate(address indexed custodian, address indexed asset, uint256 amount);
-// net_issuance(custodian, asset) ≈ Σ Allocate.amount − Σ Deallocate.amount
-```
-
-Custodian also emits its own `Deallocate` / `Distribute` (asset + amount, no custodian index — the emitter address is the wallet).
-
-### 2.2 Economic picture
-
-| Flow | Meaning |
-| ---- | ------- |
-| Trade profit left on custodian, then Grinders `distribute` | Protocol yield → GRAI tokenomics |
-| Inventory returned via Grinders `deallocate` | Capital back to reserve (may be a different token/size than allocated) |
-| Idle reserve on Grinders | Not earning until `allocate`d |
-| GRAI book (`totalValue`) | Unaffected by trades / distribute until deposit / redeem / revive |
-
-Example (happy path):
-
-1. Reserve holds **100,000 USDC** from deposits.
-2. Owner `allocate`s **50,000 USDC** to a Swap custodian (`base=WETH`, `quote=USDC`).
-3. Operator swaps into WETH / back to USDC over time; wallet ends with **52,000 USDC**.
-4. Owner `distribute(custodian, USDC, 2,000)` → GRAI splits ~33/33/33 into auction, dividends, treasury.
-5. Owner may `deallocate(custodian, USDC, 50,000)` (or any amount held) to refill the reserve.
+GRAI `totalValue` is independent of how the reserve is later split across custodians.
 
 ---
 
-## 3. Custodian kinds (how they trade)
+## 2. Mint and register
 
-Each kind is an implementation registered on Grinders under `keccak256("grindurus.custodian.<name>")`. `mint` deploys a fresh ERC1967 proxy; `_authorizeUpgrade` always reverts — existing wallets keep that impl.
+Owner registers implementations by kind label, then deploys or attaches custodian proxies and mints the NFT.
 
-| Kind string | Contract | How it earns |
-| ----------- | -------- | ------------ |
-| `grindurus.custodian.explicit_swap` | `PathCustodian` | NFT owner builds router calldata; `swap(limitPrice, target, data)` enforces opposite base/quote deltas and a min/max execution price |
-| `grindurus.custodian.cow` | `CoWCustodian` | CoW Protocol EIP-1271 orders; fills settle into the wallet |
-| `grindurus.custodian.lifi` | `LiFiCustodian` | Stub / LiFi routing into the wallet (kind registered; routing TBD) |
+### EVM
 
-Common base (`Custodian`):
+| Contract | Function | Role |
+| -------- | -------- | ---- |
+| `Grinders` | `set(label, implementation)` | Register kind; `impl.label()` must match |
+| `Grinders` | `mint(label, nftOwner, base, quote)` | Deploy ERC1967 proxy + NFT + `setAssets` |
+| `Grinders` | `register(custodian, nftOwner)` | Attach pre-deployed proxy; mint NFT |
+| `Grinders` | `setAssets(custodian, base, quote)` | Retarget pair (balances of pair must allow) |
+| `Grinders` | `upgradeCustodian(custodian)` | UUPS to current `set` impl for its label |
+| `Custodian` | `initialize(grinders)` / `label()` | Proxy init; kind id |
 
-- `baseAsset` / `quoteAsset` — `address` trading pair (set only via Grinders → `setAssets`, and only when both balances are zero).
-- `nav()` — USD value of base+quote via GRAI oracles (ops / UI).
-- `deallocate` / `distribute` — **only Grinders** (`msg.sender == grinders`); blocked while GRAI liquidation is open.
-- `liquidate()` — only Grinders; sweeps ETH / base / quote to Grinders during protocol liquidation.
-- NFT owner: trading APIs only (custodian UUPS is disabled).
+Default NFT owner if `address(0)`: **toreador**. Collection: **Grinders Custodians** / `GRINDERS`.
 
-`Custodian.distribute` try/catch: if `grai.distribute` fails, tokens are still forwarded raw to GRAI (or back to Grinders if `grai()` itself fails) and `Distribute` is emitted — funds are not left stranded on the wallet, but may bypass GRAI cut accounting.
-
-Proceeds of trades **stay on the custodian** until Grinders owner calls `distribute` (yield) or `deallocate` (principal).
-
----
-
-## 4. Grinders API (registry & reserve)
-
-### 4.1 Lifecycle
+### Flow
 
 ```mermaid
 sequenceDiagram
-    participant O as Grinders owner
+    participant O as Owner
     participant G as Grinders
     participant C as Custodian proxy
-    participant N as NFT owner
 
-    O->>G: set(kind, implementation)
-    O->>G: mint(kind, owner, base, quote)
-    G->>C: deploy ERC1967Proxy + initialize + setAssets
-    G->>G: mint NFT to owner
-    O->>G: allocate(custodian, asset, amount)
-    G->>C: transfer asset
-    G-->>G: emit Allocate
-    N->>C: trade (swap / CoW / …)
-    O->>G: distribute(custodian, asset, yield)
-    G->>C: distribute → GRAI.distribute
-    O->>G: deallocate(custodian, asset, amount)
-    G->>C: deallocate pull to reserve
-    G-->>G: emit Deallocate
+    O->>G: set(label, impl)
+    O->>G: mint(label, nftOwner, base, quote)
+    G->>C: ERC1967Proxy + initialize + setAssets
+    G->>G: _safeMint NFT to nftOwner
 ```
 
-| Function | Caller | Behavior |
-| -------- | ------ | -------- |
-| `set(kind, impl)` | Owner | Register / update default implementation for future `mint` (impl `label()` must match) |
-| `setGrai(grai_)` | Owner | Retarget linked GRAI (do before `GRAI.setGrinders` when rewiring) |
-| `mint(kind, owner_, base, quote)` | Owner | Deploy proxy, register id, mint NFT, `setAssets` |
-| `register(custodian, owner_)` | Owner | Attach a pre-deployed proxy (must already point at this Grinders) |
-| `setAssets(custodian, base, quote)` | Owner | Forward to custodian (balances of current pair must be zero) |
-| `allocate(custodian, asset, amount)` | Owner | Reserve → custodian; requires `balance(asset) ≥ amount`; emits `Allocate` |
-| `deallocate(custodian, asset, amount)` | Owner | Custodian → reserve via `Custodian.deallocate`; emits `Deallocate` |
-| `distribute(custodian, asset, amount)` | Owner | Custodian → `GRAI.distribute` via `Custodian.distribute` |
-| `liquidate(fromId, toId)` | Anyone | While `confirmed` **and** `grai.liquidation()` — see §6 |
+### Labels (EVM kinds)
 
-### 4.2 Off-chain issuance accounting
+Registered under kind-specific `label()` (family `grinder.custodian.<name>@eip155:<chainid>` → `keccak256`):
 
-There is **no** `allocated` / `totalAllocated` storage. Index Grinders logs:
+| Kind | Contract | How it trades |
+| ---- | -------- | ------------- |
+| path | `PathCustodian` | Router calldata + price limit |
+| swap | `SwapCustodian` | Swap helper |
+| cow | `CoWCustodian` | CoW EIP-1271 orders |
+| lifi | `LiFiCustodian` | LiFi routing |
+| aave_v3 | `AaveV3Custodian` | Aave V3 |
 
-| Event | Indexed | Use |
-| ----- | ------- | --- |
-| `Allocate(custodian, asset, amount)` | custodian, asset | Capital out of reserve |
-| `Deallocate(custodian, asset, amount)` | custodian, asset | Capital back to reserve |
-
-After swaps, returned token and size often differ from what was allocated — net by `(custodian, asset)` is informational, not an on-chain cap.
-
-### 4.3 NFT / metadata
-
-- Collection name: **Grinders Custodians**; symbol **GRINDERS**.
-- `tokenURI(id)` — on-chain JSON via `GrinderArt` (custodian address + kind).
-- `tokenURI()` (ERC-1046) — `https://grindurus.xyz/metadata.json`.
-- NFT **owner** = custodian operator (`Custodian.owner()` reads `Grinders.ownerOf(id)`).
-- Views: `getCustodiansData(fromId, toId)`, `custodianIdOf`, `labelOf`, `isCustodian`.
+Views: `getCustodiansData(fromId, toId)`, `custodianIdOf`, `labelOf`, `isCustodian`, `tokenURI`.
 
 ---
 
-## 5. Link to GRAI yield
+## 3. Allocate
 
-When Grinders owner routes yield through `Custodian.distribute` → `GRAI.distribute(asset, amount)`:
+Toreador moves reserve into a registered custodian. Refreshes heartbeat. Requires `balance(asset) ≥ amount`.
 
-```text
-dividendCut  = received * dividendCutBps / BPS   // floor first
-treasuryCut  = received - dividendCut            // remainder → treasury
+### EVM
+
+| Contract | Function | Role |
+| -------- | -------- | ---- |
+| `Grinders` | `allocate(custodian, asset, amount)` | Toreador; ETH or ERC20 transfer; emit `Allocate` |
+
+### Flow
+
+```
+Grinders reserve ──allocate──► Custodian
+                     │
+                     ├── emit Allocate(custodian, asset, amount)
+                     └── _heartbeat()
 ```
 
-Defaults **50% / 50%** → unvoted-locker dividends / treasury. Full cut rules and claims: [GRAI mechanics](https://docs.grindurus.xyz/protocol/grai/mechanics) §5.
+### Off-chain issuance
 
-Analytics: `positions[msg.sender][asset].yielded` on GRAI accumulates credited distribute amounts (per caller — here the custodian wallet).
+```
+event Allocate(address indexed custodian, address indexed asset, uint256 amount);
+event Deallocate(address indexed custodian, address indexed asset, uint256 amount);
 
----
+net_issuance(custodian, asset) ≈ Σ Allocate − Σ Deallocate
+```
 
-## 6. Liquidation
+No `allocated` storage. After swaps, returned token/size need not match what was sent.
 
-While `confirmed` **and** `grai.liquidation()` (after `GRAI.liquidate` opens the fund cycle):
+### Example
 
-1. Keepers call `Grinders.liquidate(fromId, toId)` with `fromId < toId` to page custodian ids, pull each wallet’s ETH / base / quote onto Grinders, then forward those amounts to GRAI.
-2. **Idle sweep:** if `fromId >= toId`, the call treats the range as a sentinel (`type(uint256).max`) and forwards Grinders’ **own** balances of assets from `grai.getAssets()` to GRAI (no custodian pulls).
-3. While `grai.liquidation()` is true, custodian `distribute` / `deallocate` revert (`LiquidationOpen`).
-4. Holders `GRAI.redeem` from the redeemable basket; later `revive` can return leftovers to Grinders.
-
-Grinders arms the Grinders-owner limb of GRAI’s 2-of-2 (`confirm` → `confirmed`). Anyone opens with `GRAI.liquidate` when `hasQuorum()`; GRAI flips to `REDEMPTION` before nested sweeps. Each `Grinders.liquidate` requires `confirmed` **and** `grai.liquidation()` (arm alone cannot sweep while still `GRINDING`). Arm stays through open for keeper sweeps; GRAI clears on `revive`.
+Reserve holds **100,000 USDC**. Toreador `allocate(custodian, USDC, 50_000)` → wallet has 50k; reserve 50k; heartbeat refreshed.
 
 ---
 
-## 7. Access control
+## 4. Trade
+
+NFT owner (`Custodian.owner()` = `Grinders.ownerOf(id)`) runs kind-specific trading. Balances stay on the wallet until distribute / deallocate / liquidation.
+
+### EVM
+
+| Contract | Function | Role |
+| -------- | -------- | ---- |
+| `PathCustodian` / `SwapCustodian` / … | kind trade APIs | NFT owner only |
+| `Custodian` | `nav()` | USD mark of base+quote via GRAI oracles (ops / UI) |
+| `Custodian` | `baseAsset` / `quoteAsset` | Trading pair |
+
+Blocked implicitly when liquidation is open for money-out paths (`deallocate` / `distribute` revert `LiquidationOpen`). Trading should be treated as frozen once GRAI is in REDEMPTION.
+
+### Flow
+
+```
+NFT owner ──trade──► Custodian balances change
+                         │
+                         └── still on wallet until report / pull
+```
+
+### Example
+
+Allocate **50,000 USDC** to a path custodian (`base=WETH`, `quote=USDC`). Operator swaps over time; wallet ends with **52,000 USDC**. Profit is still just a higher balance until `distribute`.
+
+---
+
+## 5. Distribute
+
+Toreador reports yield from a custodian into GRAI. Refreshes heartbeat. Intentionally **not** capped by prior allocates.
+
+### EVM
+
+| Contract | Function | Role |
+| -------- | -------- | ---- |
+| `Grinders` | `distribute(custodian, asset, yieldAmount)` | Toreador → `Custodian.distribute` → heartbeat |
+| `Custodian` | `distribute(asset, yieldAmount)` | Grinders-only; try `GRAI.distribute`; fallback raw send |
+| `GRAI` | `distribute(asset, yieldAmount)` | Split dividend / treasury cuts |
+
+Blocked on custodian while `grai.liquidation()`. Plain `GRAI.distribute` (not via Grinders) does **not** refresh heartbeat.
+
+### Flow
+
+```mermaid
+sequenceDiagram
+    participant T as Toreador
+    participant G as Grinders
+    participant C as Custodian
+    participant R as GRAI
+
+    T->>G: distribute(custodian, asset, amount)
+    G->>C: distribute(asset, amount)
+    C->>R: grai.distribute (or raw fallback)
+    G->>G: _heartbeat()
+```
+
+```mermaid
+---
+config:
+  sankey:
+    showValues: true
+    linkColor: gradient
+    suffix: "%"
+---
+sankey-beta
+
+Yield,Dividends,50
+Yield,Treasury,50
+```
+
+Defaults **50% / 50%**. Full cut rules: [GRAI mechanics — Distribute](../grai/mechanics.md#3-distribute).
+
+### Formulas (GRAI side)
+
+```
+received     = tokens credited to GRAI
+dividendCut  = received × dividendCutBps / BPS
+treasuryCut  = received − dividendCut
+```
+
+Analytics: `positions[custodian][asset].yielded` on GRAI.
+
+### Example
+
+Wallet has **52,000 USDC** after trades from a 50k allocate. Toreador `distribute(custodian, USDC, 2_000)` → GRAI splits ~1,000 dividends / ~1,000 treasury. Remaining **50,000** can later `deallocate`.
+
+---
+
+## 6. Deallocate
+
+Toreador pulls inventory back to the reserve. Not capped by prior allocates. Heartbeat refreshed. Blocked while GRAI liquidation is open.
+
+### EVM
+
+| Contract | Function | Role |
+| -------- | -------- | ---- |
+| `Grinders` | `deallocate(custodian, asset, amount)` | Toreador; emit `Deallocate`; heartbeat |
+| `Custodian` | `deallocate(asset, amount)` | Grinders-only; send to Grinders |
+
+### Flow
+
+```
+Custodian ──deallocate──► Grinders reserve
+                │
+                ├── emit Deallocate
+                └── _heartbeat()
+```
+
+### Example
+
+After distribute of 2k profit, toreador `deallocate(custodian, USDC, 50_000)` refills reserve. If the wallet holds WETH instead, deallocate that asset — net by `(custodian, asset)` is informational only.
+
+---
+
+## 7. Heartbeat
+
+Implicit “ops are alive” flag. GRAI’s liquidation open needs quorum **and** `!grinding()`.
+
+### EVM
+
+| Contract | Function | Role |
+| -------- | -------- | ---- |
+| `Grinders` | `grinding()` | `now ≤ heartbeatAt + grindPeriod` |
+| `Grinders` | `heartbeatAt` / `grindPeriod` | State / window (default **7d**, owner 1–30d) |
+| `Grinders` | `setGrindPeriod(uint32)` | Owner |
+| `Grinders` | `heartbeat()` | GRAI-only (on `revive`) |
+| `Grinders` | `allocate` / `deallocate` / `distribute` | Each calls `_heartbeat()` |
+
+### Formulas
+
+```
+heartbeatAt  ← now   on allocate / deallocate / distribute / heartbeat()
+grinding()   = block.timestamp ≤ heartbeatAt + grindPeriod
+```
+
+```
+GRINDING ops     ──activity──► heartbeatAt refreshed
+after grindPeriod with no ops ──► !grinding()
+GRAI.liquidate needs hasQuorum() AND !grinding()
+GRAI.revive ──► grinders.heartbeat() ──► fresh window
+```
+
+Keepers’ `Grinders.liquidate` does **not** check `grinding` — only that GRAI liquidation is already open.
+
+---
+
+## 8. Liquidation sweeps
+
+After `GRAI.liquidate` flips **REDEMPTION**, anyone pages Grinders to pull capital onto GRAI for redeem.
+
+### EVM
+
+| Contract | Function | Role |
+| -------- | -------- | ---- |
+| `GRAI` | `liquidate()` | 2-of-2 open; nested sweeps |
+| `Grinders` | `liquidate(fromId, toId)` | Anyone while `grai.liquidation()` |
+| `Custodian` | `liquidate()` | Grinders-only; sweep ETH / base / quote → Grinders |
+| `Grinders` | `liquidation()` | Forwards `grai.liquidation()` |
+
+### Flow
+
+```
+GRAI open (quorum + !grinding)
+        │
+        ▼
+Grinders.liquidate(fromId, toId)
+        ├── fromId < toId → for each id: Custodian.liquidate → forward to GRAI
+        └── fromId ≥ toId → sentinel: sweep Grinders balances of grai.getAssets() → GRAI
+```
+
+Per-custodian `try/catch` keeps earlier pulls if one wallet reverts. While open: custodian `distribute` / `deallocate` revert. Holders redeem on GRAI; `revive` returns leftovers and calls `heartbeat()`.
+
+Full GRAI cycle: [GRAI mechanics — Liquidation](../grai/mechanics.md#9-liquidation-open--redeem--revive).
+
+### Example
+
+GRAI open. Keeper `liquidate(0, 50)` pages first 50 custodians. Later `liquidate(max, max)` (or any `fromId >= toId`) sweeps idle USDC/WETH still on Grinders onto GRAI.
+
+---
+
+## A. Access control
+
+Grinders has **no local Ownable**: `owner()` returns `grai.owner()` (or `address(grai)` if that call fails / returns zero). Day-to-day capital ops are **toreador-only** — owner cannot substitute.
 
 | Role | Powers |
 | ---- | ------ |
-| **Grinders owner** | UUPS upgrade, `set` / `setGrai` / `mint` / `register` / `setAssets` / `allocate` / `deallocate` / `distribute` / `confirm` |
-| **NFT owner (Grinder)** | Custodian trades (swap / CoW / …) |
-| **Anyone** | `liquidate(fromId, toId)` when `confirmed` **and** `grai.liquidation()` |
+| **Owner** (`grai.owner()`) | `setToreador`, `setGrindPeriod`, `set`, `mint`, `register`, `setAssets`, `upgradeCustodian`, UUPS |
+| **Toreador** | `allocate`, `deallocate`, `distribute` (each refreshes heartbeat) |
+| **NFT owner** | Custodian trade APIs |
+| **GRAI** | `heartbeat` (on revive) |
+| **Anyone** | `liquidate(fromId, toId)` while `grai.liquidation()` |
 
-Wire-up: after deploy, `GRAI.setGrinders(grinders)` requires `grinders.grai() == GRAI`.
-
----
-
-## 8. Invariants / design notes
-
-1. **Reserve ≠ strategy** — Grinders holds idle capital; earnings happen only in custodians.
-2. **Yield is explicit** — profit enters protocol accounting only via `GRAI.distribute`, not by balance drift on Grinders.
-3. **No allocate ledger** — do not expect on-chain `allocated`; use `Allocate` / `Deallocate` events.
-4. **Trust model** — NFT owners trade; Grinders owner moves capital and reports yield. Mis-`distribute` of principal is a governance/monitoring concern, not an on-chain profit oracle.
-5. **Listed assets** — idle liquidation sweeps follow `grai.getAssets()`; custodian pulls only auto-sweep ETH + their base/quote in `Custodian.liquidate`.
-6. **Non-rebasing** listed collateral assumed (same as GRAI tokenomics).
+Wire-up: `GRAI.setGrinders(grinders)` requires `grinders.grai() == GRAI`.
 
 ---
 
-## 9. Instruction reference
+## B. Key invariants
 
-| Function | Caller | When |
-| -------- | ------ | ---- |
-| `set` / `setGrai` / `mint` / `register` / `setAssets` / `allocate` / `deallocate` / `distribute` | Grinders owner | Anytime (normal ops); deallocate/distribute blocked on custodian if GRAI liquidating |
-| `confirm` | Grinders owner | Toggle arm for GRAI open / sweeps |
-| Custodian trade APIs | NFT owner | Kind-specific |
-| `liquidate(fromId, toId)` | Anyone | `confirmed` **and** `grai.liquidation()` (`fromId < toId` = page wallets; else idle reserve sweep) |
-| `revive` | GRAI only | Called on `GRAI.revive`; clears `confirmed` |
+1. **Reserve ≠ strategy** — earnings happen in custodians (and off-chain), not by sitting idle.
+2. **Yield is explicit** — profit enters GRAI only via `distribute`, not balance drift.
+3. **No allocate ledger** — use events; do not expect on-chain caps.
+4. **Trust model** — NFT owners trade; toreador moves capital and reports yield. Mis-`distribute` of principal is governance/monitoring, not an on-chain profit check.
+5. **Heartbeat limb** — GRAI open needs `!grinding()`; sweeps after open do not re-check it.
+6. **Listed assets** — idle sweeps follow `grai.getAssets()`; custodian pull is ETH + base + quote.
+7. **Non-rebasing** listed collateral assumed (same as GRAI).
+8. **Fee GRAI on Grinders** — unlock/poach fees are free GRAI inventory, not yield.
 
 ---
+
+## C. Instruction reference
+
+### Grinders
+
+| Function | Caller | Notes |
+| -------- | ------ | ----- |
+| `set` / `mint` / `register` / `setAssets` / `upgradeCustodian` | Owner | Registry lifecycle |
+| `setToreador` / `setGrindPeriod` | Owner | Ops role; window 1–30d |
+| `allocate` / `deallocate` / `distribute` | Toreador | Heartbeat; deallocate/distribute blocked on custodian if GRAI liquidating |
+| `liquidate(fromId, toId)` | Anyone | While `grai.liquidation()`; page vs idle sentinel |
+| `heartbeat` | GRAI | On revive |
+| `grinding` / `heartbeatAt` / `grindPeriod` / `getCustodiansData` / `liquidation` | Anyone (view) | State |
+
+### Custodian
+
+| Function | Caller | Notes |
+| -------- | ------ | ----- |
+| Trade APIs | NFT owner | Kind-specific |
+| `setAssets` / `deallocate` / `distribute` / `liquidate` | Grinders | Money paths |
+| `nav` / `baseAsset` / `quoteAsset` / `label` | Anyone (view) | Ops / UI |
+
+---
+
+## Read next
+
+- [Grinders overview](overview.md) — short plain-language map
+- [Strategy](strategy.md) — grind, store, swap; adapters
+- [GRAI mechanics](../grai/mechanics.md) — shares, distribute cuts, liquidation open
+- [Protocol overview](../overview.md) — module split
