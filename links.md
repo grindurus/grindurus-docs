@@ -30,8 +30,4 @@
 | --- | --- |
 | X | [@grindurus](https://x.com/grindurus) |
 | GitHub | [github.com/grindurus](https://github.com/grindurus) |
-| Contact | contact@grindurus.xyz |
 
-## Boss endpoints (metadata)
-
-GRAI token JSON lists example Boss URLs for Grinder infrastructure — used by integrations, not required for holders.
