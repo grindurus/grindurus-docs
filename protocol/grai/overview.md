@@ -1,15 +1,32 @@
 # GRAI overview
 
-**GRAI** (*Grinders Artificial Index*) is the on-chain fund share. It is an ERC20 priced in USD (6 decimals).
+**GRAI** (*Grinders Artificial Index*) is the on-chain fund share — an ERC20 priced in USD (6 decimals).
 
-You deposit assets. You get GRAI. Later the contract pays money out — dividends, treasury cut, or redeem in liquidation. It does not pick trades or venues. That is off-chain **Grinders**. See [Protocol overview](../overview.md). Full math: [GRAI mechanics](mechanics.md).
+You deposit listed assets, get GRAI, lock for yield or vote for shutdown, claim dividends, and exit via sell, bribe, or liquidation → redeem. Trading the basket is off-chain **Grinders**; this contract is the share ledger and cashflow harness. Economically it is an indexed perpetual delivery put with a live strike and a premium for volatility risk (§0). The rest of this page is how that works on-chain (§1–§9).
 
 | Chain | Contract / program |
 | ----- | ------------------- |
 | EVM | `GRAI.sol` (UUPS) |
 | Solana | `programs/grai` |
 
-While the fund is **GRINDING**, you cannot redeem shares back to the protocol. Ways out: sell GRAI, `bribe` voted GRAI, or wait for liquidation → `redeem`.
+See [Protocol overview](../overview.md). Full math: [GRAI mechanics](mechanics.md).
+
+---
+
+## 0. Economic shape
+
+Economically, GRAI is an **indexed perpetual delivery put option** with a **dynamically recalculated strike price** and earing a **premium** for bearing **volatility risk** with utilization of **listed assets**.
+
+Each term word means:
+| Term | What it means here |
+| ---- | ------------------ |
+| **Indexed** | Priced off a **USD book** of listed assets with price oracles|
+| **Perpetual** | **No expiry.** Runs while grinding; exit is sell, bribe, or liquidate. |
+| **Delivery put option** | Use GRAI for redeem the **listed assets**. |
+| **Strike price** | The **estimated price of the real assets** — what they should sell for. |
+| **Premium** | earn yield for bearing **volatility risk**. |
+
+The sections below are the know-how for making that economic shape real (mint, lock, yield, exit).
 
 ---
 

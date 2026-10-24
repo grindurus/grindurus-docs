@@ -10,15 +10,125 @@ Map: [protocol.svg](../protocol.svg) · [protocol.png](../protocol.png). Config 
 
 ---
 
-## 0. Executive summary
+## 0. Economic shape
 
-**GRAI** is a USD-denominated fund-share ERC20 (6 decimals). Capital sits in **Grinders**; GRAI mints shares, locks, votes, pays dividends, and runs liquidation redeem. Same topics as [overview](overview.md), expanded below.
+Short form: [overview §0](overview.md#0-economic-shape). Here the same framing is unpacked against protocol state.
+
+Economically, GRAI is an **indexed perpetual delivery put option** with a **dynamically recalculated strike price**, **earning** a **premium** for bearing **volatility risk** through **listed assets**. 
+
+Capital sits in **Grinders**; GRAI is the share ledger and cashflow harness (mint, lock, vote, dividends, liquidation redeem). §§1–9 below are that harness.
 
 ```
-holder  →  lock  →  locker (unvoted)  →  vote  →  voter  ←  bribe  ←  briber
+holder  →  lock()  →  locker (unvoted)  →  vote()  →  voter  ←  bribe()  ←  briber
                       earn dividends           no dividends on voted
                       (locked − voted)         quorum / bribe market
 ```
+
+### Formal model
+
+Notation (USD scale = 6 decimals unless noted; asset amounts in native decimals):
+
+| Symbol | Protocol state |
+| ------ | -------------- |
+| \(V_t\) | `totalValue` — USD book at time \(t\) |
+| \(S_t\) | `totalSupply` — GRAI shares outstanding |
+| \(q_i(t)\) | Oracle USD price of listed asset \(i\) ([§A](#a-oracle-and-configuration)) |
+| \(b_i(t)\) | Protocol balance of asset \(i\) (Grinders / GRAI after sweep) |
+| \(c_i(t)\) | `totalClaimable` reserved for dividends in asset \(i\) |
+| \(L_t,\; W_t\) | `totalLocked`, `totalVoted` |
+| \(A_t\) | Dividend index `accShare` (1e18 scale) |
+| \(\mathcal{R}\) | Regime: `GRINDING` or `REDEMPTION` |
+
+**Indexed.** The fund is a USD-marked basket, not a single coin:
+
+\[
+V_t \;\;=\;\; \text{running USD book updated by deposits / distribute / redeem}
+\qquad
+\text{mark of asset } i:\;\;
+v_i(a) = q_i(t)\cdot a
+\]
+
+One share’s book claim (when \(S_t > 0\)):
+
+\[
+B_t \;=\; \frac{V_t}{S_t}
+\qquad
+\text{mint: }\;
+\texttt{book} = a\cdot\frac{S_t}{V_t}\;\text{(or }a\text{ if empty)},\;
+\texttt{graiOut} = \texttt{book}\cdot\frac{10^4}{\texttt{priceBps}}
+\]
+
+([§1](#1-deposit-and-mint).)
+
+**Perpetual.** No expiry \(T\). Exercise is path-dependent on regime, not on calendar:
+
+\[
+\text{exercise allowed}
+\;\iff\;
+\mathcal{R}=\texttt{REDEMPTION}
+\;\wedge\;
+t \ge t_{\mathrm{liq}} + \texttt{liquidationPeriod}
+\]
+
+While \(\mathcal{R}=\texttt{GRINDING}\), redeem is unavailable (exit = sell / unlock / bribe).
+
+**Strike price.** Estimated sell price of the redeemable real assets (oracle marks on balances net of claim reserve), per share:
+
+\[
+K_t
+\;=\;
+\frac{1}{S_t}
+\sum_{i\in\mathrm{listed}}
+q_i(t)\cdot \underbrace{\bigl(b_i(t) - c_i(t)\bigr)}_{r_i(t)=\texttt{\_redeemable}(i)}
+\]
+
+\(K_t\) is **not** fixed at mint; deposits, yield, fees, burns, and \(q_i\) rewrite it. ([§9](#9-liquidation-open--redeem--revive).)
+
+**Delivery put.** Payoff is a basket delivery, not cash PnL. Burning \(x\) GRAI in redemption yields
+
+\[
+\Pi_{\mathrm{put}}(x)
+\;=\;
+\Bigl\{\, x\cdot\tfrac{r_i(t)}{S_t} \;\text{ of asset } i \;\Big|\; i\in\mathrm{listed} \,\Bigr\}
+\]
+
+USD mark of that delivery is \(x\cdot K_t\). No cash settlement alternative.
+
+**Premium.** Yield for bearing volatility of \(\{q_i\}\). Grinders realize trading PnL off-chain; on push of amount \(Y\) of asset \(i\):
+
+\[
+Y_{\mathrm{div}} = \Bigl\lfloor Y\cdot\frac{\texttt{dividendCutBps}}{\mathrm{BPS}}\Bigr\rfloor
+,\qquad
+Y_{\mathrm{treas}} = Y - Y_{\mathrm{div}}
+\]
+
+\[
+\texttt{eligible} = L_t - W_t
+,\qquad
+A_t \mathrel{+}= \frac{Y_{\mathrm{div}}\cdot 10^{18}}{\texttt{eligible}}
+\quad(\texttt{eligible}=0 \Rightarrow Y_{\mathrm{div}}\to\text{Treasury})
+\]
+
+Locker claim on asset \(i\) is the integral of index growth against unvoted lock — the holder’s premium path. ([§3](#3-distribute), [§4](#4-claim), [§C](#c-grinders-layer).)
+
+| Term         | Compact                                        |
+| ------------ | ---------------------------------------------- |
+| Indexed      | \(V_t\), \(B_t = V_t/S_t\), marks \(q_i\)      |
+| Perpetual    | no expiry \(T\); exercise only in `REDEMPTION` |
+| Strike price | \(K_t = S_t^{-1}\sum_i q_i\,r_i\)              |
+| Delivery put | \(\Pi_{\mathrm{put}}(x) = \{x\,r_i/S_t\}_i\)   |
+| Premium      | \(Y_{\mathrm{div}}\) → `accShare` → `claim`    |
+
+### Caveats for economists
+
+This is an **analogy**, not a listed exchange put:
+
+- **Not Black–Scholes.** There is no fixed \(K\) at mint and no implied-vol premium. \(K_t\) is the live **redeemable NAV per share** (oracle marks on \(r_i\)); \(B_t = V_t/S_t\) is the **accounting book** claim - related, not identical.
+- **Premium ≠ option premium.** Holder “premium” is the **path of realized Grinders trading yield** pushed on-chain (`distribute` → `claim`), not a prepaid BS price of volatility.
+- **Exercise is gated.** The put is not continuously American: redeem only after 2-of-2 liquidation (`REDEMPTION` + delay). Vote / bribe / unlock fee are a separate **governance and secondary-market** layer around that gate (§§5–6, §2).
+- **Mint `priceBps`** is a **share dilution schedule** (later deposits mint fewer GRAI per USD), not the put strike.
+
+### Mapping to mechanics
 
 | § | Mechanic | One-liner | Primary EVM |
 | - | -------- | --------- | ----------- |
@@ -45,7 +155,7 @@ holder  →  lock  →  locker (unvoted)  →  vote  →  voter  ←  bribe  ←
 | Participant | Incentive |
 | ----------- | --------- |
 | **Depositor** | Mint GRAI at book (early depositors avoid the mint premium) |
-| **Locker** | Earn asset dividends on unvoted lock |
+| **Locker** | Earn asset dividends on unvoted lock (premium for volatility) |
 | **Referrer (affiliate)** | Share of treasury cut when downline claims |
 | **Poacher** | Own the upline seat → affiliate fees on claims |
 | **Voter** | Push toward liquidation; exit via bribe / unlock |
