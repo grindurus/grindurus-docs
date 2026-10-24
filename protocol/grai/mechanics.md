@@ -51,68 +51,68 @@ USD scale = 6 decimals unless noted; asset amounts in native decimals.
 
 **Indexed.** The index is the set of inventories
 
-\[
+$$
 \mathcal{I}(t)
 \;=\;
 \bigl\{\, q(t) \,\bigr\}
 \;\cup\;
 \bigl\{\, b_i(t) \;\big|\; i > 0 \,\bigr\}
-\]
+$$
 
 with valuation
 
-\[
+$$
 V(t)
 \;=\;
 q(t) + \sum_{i > 0} b_i(t)\,p_i(t)
-\]
+$$
 
 (Share mint / `graiOut` is §1, not part of the index definition.)
 
 **Perpetual.** No expiry \(T\). Regime \(R \in \{\texttt{GRINDING},\,\texttt{REDEMPTION}\}\). Exercise is regime-gated:
 
-\[
+$$
 \text{exercise allowed}
 \;\iff\;
 R=\texttt{REDEMPTION}
 \;\wedge\;
 t \ge t_{\mathrm{liq}} + \texttt{liquidationPeriod}
-\]
+$$
 
 While \(R=\texttt{GRINDING}\), redeem is unavailable (exit = sell / unlock / bribe).
 
 **Delivery put.** Basket delivery on-chain — no cash settlement, **no strike in the payoff**:
 
-\[
+$$
 \Pi_{\mathrm{put}}(x)
 \;=\;
 \Bigl\{\, x\cdot\tfrac{r_i(t)}{S(t)} \;\text{ of asset } i \;\Big|\; i\in\mathrm{listed} \,\Bigr\}
-\]
+$$
 
 Oracle mark of that delivery (per share of the basket, separate valuation):
 
-\[
+$$
 N_t^{\mathrm{redeem}}
 \;=\;
 \frac{1}{S(t)}\sum_{i\in\mathrm{listed}} p_i(t)\,r_i(t)
-\]
+$$
 
 USD mark of burning \(x\) GRAI is \(x\cdot N_t^{\mathrm{redeem}}\). ([§9](#9-liquidation-open--redeem--revive).)
 
 **Premium.** Yield for bearing volatility of \(\{p_i\}\). On push of amount \(Y\) of asset \(i\):
 
-\[
+$$
 Y_{\mathrm{div}} = \Bigl\lfloor Y\cdot\frac{\texttt{dividendCutBps}}{\mathrm{BPS}}\Bigr\rfloor
 ,\qquad
 Y_{\mathrm{treas}} = Y - Y_{\mathrm{div}}
-\]
+$$
 
-\[
+$$
 \texttt{eligible} = L_t - W_t
 ,\qquad
-A_t \mathrel{+}= \frac{Y_{\mathrm{div}}\cdot 10^{18}}{\texttt{eligible}}
+A_t \leftarrow A_t + \frac{Y_{\mathrm{div}}\cdot 10^{18}}{\texttt{eligible}}
 \quad(\texttt{eligible}=0 \Rightarrow Y_{\mathrm{div}}\to\text{Treasury})
-\]
+$$
 
 Locker claim on \(i\) integrates index growth against unvoted lock. ([§3](#3-distribute), [§4](#4-claim).)
 
@@ -120,29 +120,29 @@ Locker claim on \(i\) integrates index growth against unvoted lock. ([§3](#3-di
 
 Per pair the same shape as a one-asset slice of \(\mathcal{I}\): quote \(q(t)\), base \(b(t)\), venue spot \(p(t)\). Spot mark of the pair:
 
-\[
+$$
 v(t) = q(t) + b(t)\cdot p(t)
-\]
+$$
 
 Target NAV of the pair (quote units) — a **different** valuation from index \(V(t)\) and from redeem mark \(N_t^{\mathrm{redeem}}\):
 
-\[
+$$
 N^{\star} = q(t) + b(t)\cdot K_t
-\]
+$$
 
 When attainable on base (\(N^{\star} > q(t)\) and \(b(t) > 0\)):
 
-\[
+$$
 K_t = \frac{N^{\star} - q(t)}{b(t)}
-\]
+$$
 
 Otherwise \(K_t\) is **undefined** — no free-standing strike object. \(K_t\) is **not** in any contract storage or ABI; it only steers pair allocation when defined. ([§C](#c-grinders-layer).)
 
 **Dynamics.** The system is dynamic: continuous marks (e.g. \(p_i\)) plus protocol **impulses**
 
-\[
+$$
 \Delta q,\; \Delta b_i,\; \Delta S,\; \Delta c_i,\; \Delta A
-\]
+$$
 
 (deposit / unlock / distribute / claim / redeem / fund, …). \(R\) switches by jump. Not a closed ODE \(\dot x=f(x)\).
 
