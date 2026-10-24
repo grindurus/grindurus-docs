@@ -234,14 +234,14 @@ sequenceDiagram
     participant R as Grinders
     participant T as Treasury
 
-    D->>G: deposit(asset, amount, lock_, referrer)
-    G->>G: _pay then usdValue → value
-    G->>G: previewDeposit math → graiOut
+    D->>G: deposit asset amount lock referrer
+    G->>G: pay then usdValue to value
+    G->>G: previewDeposit math to graiOut
     G->>R: asset principal
-    G->>G: totalValue += value; mint graiOut
-    G->>T: mint(depositor, referrer, value)
-    opt lock_ == true
-        G->>G: lock(graiOut)
+    G->>G: totalValue plus value, mint graiOut
+    G->>T: mint depositor referrer value
+    opt lock requested
+        G->>G: lock graiOut
     end
 ```
 
@@ -348,13 +348,6 @@ Plain `GRAI.distribute` does **not** refresh the Grinders heartbeat. Cuts fixed 
 ### Sankey (defaults)
 
 ```mermaid
----
-config:
-  sankey:
-    showValues: true
-    linkColor: gradient
-    suffix: "%"
----
 sankey-beta
 
 Yield,Dividends,50
@@ -413,12 +406,12 @@ sequenceDiagram
     participant T as Treasury
 
     Note over G: accShare already raised by distribute
-    C->>G: claim(holder, asset, amount)
-    G->>G: accrue; pull from totalClaimable
-    G->>G: claimedValue = usdValue (fresh oracle)
-    G->>L: asset − claimTip
-    G->>T: distribute(..., claimedValue)
-    T-->>T: L1/L2 / beneficiar from Treasury inventory
+    C->>G: claim holder asset amount
+    G->>G: accrue, pull from totalClaimable
+    G->>G: claimedValue equals usdValue fresh oracle
+    G->>L: asset minus claimTip
+    G->>T: distribute claimedValue
+    T-->>T: L1 L2 beneficiar from Treasury inventory
 ```
 
 ```
@@ -478,9 +471,9 @@ sequenceDiagram
     participant V as Voter
     participant G as GRAI
 
-    V->>G: vote(graiAmount)
-    Note over V,G: lock shortfall if voted + amount > locked
-    Note over V,G: eligible = locked − voted shrinks
+    V->>G: vote graiAmount
+    Note over V,G: lock shortfall if voted plus amount exceeds locked
+    Note over V,G: eligible equals locked minus voted shrinks
 ```
 
 ### Formulas
@@ -526,12 +519,12 @@ sequenceDiagram
     participant G as GRAI
     participant V as Voter
 
-    B->>G: bribe(asset, voter, graiAmount)
-    G->>G: require bribeable; previewBribe
-    G->>G: reserve escrow; transfer full graiAmount → B
-    G->>G: require exact bribeAmount credit (non-FoT)
+    B->>G: bribe asset voter graiAmount
+    G->>G: require bribeable, previewBribe
+    G->>G: reserve escrow, transfer full graiAmount to B
+    G->>G: require exact bribeAmount credit non-FoT
     G->>V: voterShare in asset
-    Note over G: premium/discount halves → dividend/treasury cuts
+    Note over G: premium or discount halves to dividend and treasury cuts
 ```
 
 ![bribeAmount vs totalVoted/supply](./bribe-amount-vs-voted.png)
@@ -678,12 +671,12 @@ sequenceDiagram
     participant S as Seller referrer
     participant R as Grinders
 
-    P->>G: poach(locker)
-    G->>T: poachOf → price, referrer
-    G->>S: transfer price − fee GRAI
+    P->>G: poach locker
+    G->>T: poachOf to price and referrer
+    G->>S: transfer price minus fee GRAI
     G->>R: transfer fee GRAI
-    G->>T: rebind(locker, poacher)
-    Note over T: referrerOf = poacher; shift l1/l2; NFT stays
+    G->>T: rebind locker to poacher
+    Note over T: referrerOf becomes poacher, shift l1 l2, NFT stays
 ```
 
 ```
