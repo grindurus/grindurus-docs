@@ -47,7 +47,7 @@ USD scale = 6 decimals unless noted; asset amounts in native decimals.
 | $$r_i(t)=b_i(t)-c_i(t)$$ | redeemable balance of $$i$$ |
 | $$L_t,\; W_t$$ | `totalLocked`, `totalVoted` |
 | $$A_t$$ | dividend index `accShare` (1e18) |
-| $$R$$ | $$R \in \{\texttt{GRINDING},\,\texttt{REDEMPTION}\}$$ |
+| $$R$$ | regime $$R \in \{\texttt{GRINDING},\,\texttt{REDEMPTION}\}$$ |
 
 **Indexed.** The index is the set of inventories
 
@@ -116,7 +116,7 @@ $$
 
 Locker claim on $$i$$ integrates index growth against unvoted lock. ([§3](#3-distribute), [§4](#4-claim).)
 
-#### Grinders book (off-chain, per trading pair)
+#### Grinders book (off-chain, Strike Price $$K_t$$ Definition)
 
 Per pair the same shape as a one-asset slice of $$\mathcal{I}$$: quote $$q(t)$$, base $$b(t)$$, venue spot $$p(t)$$. Spot mark of the pair:
 
@@ -145,14 +145,6 @@ $$
 $$
 
 (deposit / unlock / distribute / claim / redeem / fund, …). $$R$$ switches by jump. Not a closed ODE $$\dot x=f(x)$$.
-
-| Valuation | Symbol | Layer | What it is |
-| --------- | ------ | ----- | ---------- |
-| Index mark | $$V(t)$$ | economic | $$q+\sum_i b_i p_i$$ |
-| Redeem mark | $$N_t^{\mathrm{redeem}}$$ | contracts | oracle NAV of $$\{r_i\}/S(t)$$ |
-| Pair spot mark | $$v(t)$$ | Grinders | $$q+b\,p$$ at venue spot |
-| Pair target | $$N^{\star}$$ | Grinders | target NAV, not equal to $$V(t)$$ |
-| Sell mark | $$K_t$$ | Grinders only | implied when $$N^{\star} > q$$, $$b > 0$$; else absent |
 
 | Term | Compact |
 | ---- | ------- |
