@@ -30,7 +30,7 @@ The formal model below is how we write that phrase in protocol state:
 
 > *indexed perpetual delivery put option with a dynamically recalculated strike price, earning a premium for bearing volatility risk through listed assets.*
 
-Two layers, two notations. **Contracts** never store a strike; \(K_t\) lives only in the Grinders trading book. Caveats follow the formulas.
+Two layers, two notations. **Contracts** never store a strike; $K_t$ lives only in the Grinders trading book. Caveats follow the formulas.
 
 #### On-chain ledger (contracts)
 
@@ -38,16 +38,16 @@ USD scale = 6 decimals unless noted; asset amounts in native decimals.
 
 | Symbol | Meaning |
 | ------ | ------- |
-| \(q(t)\) | quote inventory |
-| \(b_i(t)\) | balance of listed asset \(i\) (\(i > 0\)) |
-| \(p_i(t)\) | price of asset \(i\) |
-| \(V(t)\) | valuation of the index |
-| \(S(t)\) | `totalSupply` — GRAI shares |
-| \(c_i(t)\) | `totalClaimable` reserved for dividends in \(i\) |
-| \(r_i(t)=b_i(t)-c_i(t)\) | redeemable balance of \(i\) |
-| \(L_t,\; W_t\) | `totalLocked`, `totalVoted` |
-| \(A_t\) | dividend index `accShare` (1e18) |
-| \(R\) | \(R \in \{\texttt{GRINDING},\,\texttt{REDEMPTION}\}\) |
+| $q(t)$ | quote inventory |
+| $b_i(t)$ | balance of listed asset $i$ ($i > 0$) |
+| $p_i(t)$ | price of asset $i$ |
+| $V(t)$ | valuation of the index |
+| $S(t)$ | `totalSupply` — GRAI shares |
+| $c_i(t)$ | `totalClaimable` reserved for dividends in $i$ |
+| $r_i(t)=b_i(t)-c_i(t)$ | redeemable balance of $i$ |
+| $L_t,\; W_t$ | `totalLocked`, `totalVoted` |
+| $A_t$ | dividend index `accShare` (1e18) |
+| $R$ | $R \in \{\texttt{GRINDING},\,\texttt{REDEMPTION}\}$ |
 
 **Indexed.** The index is the set of inventories
 
@@ -69,7 +69,7 @@ $$
 
 (Share mint / `graiOut` is §1, not part of the index definition.)
 
-**Perpetual.** No expiry \(T\). Regime \(R \in \{\texttt{GRINDING},\,\texttt{REDEMPTION}\}\). Exercise is regime-gated:
+**Perpetual.** No expiry $T$. Regime $R \in \{\texttt{GRINDING},\,\texttt{REDEMPTION}\}$. Exercise is regime-gated:
 
 $$
 \text{exercise allowed}
@@ -79,7 +79,7 @@ R=\texttt{REDEMPTION}
 t \ge t_{\mathrm{liq}} + \texttt{liquidationPeriod}
 $$
 
-While \(R=\texttt{GRINDING}\), redeem is unavailable (exit = sell / unlock / bribe).
+While $R=\texttt{GRINDING}$, redeem is unavailable (exit = sell / unlock / bribe).
 
 **Delivery put.** Basket delivery on-chain — no cash settlement, **no strike in the payoff**:
 
@@ -97,9 +97,9 @@ N_t^{\mathrm{redeem}}
 \frac{1}{S(t)}\sum_{i\in\mathrm{listed}} p_i(t)\,r_i(t)
 $$
 
-USD mark of burning \(x\) GRAI is \(x\cdot N_t^{\mathrm{redeem}}\). ([§9](#9-liquidation-open--redeem--revive).)
+USD mark of burning $x$ GRAI is $x\cdot N_t^{\mathrm{redeem}}$. ([§9](#9-liquidation-open--redeem--revive).)
 
-**Premium.** Yield for bearing volatility of \(\{p_i\}\). On push of amount \(Y\) of asset \(i\):
+**Premium.** Yield for bearing volatility of $\{p_i\}$. On push of amount $Y$ of asset $i$:
 
 $$
 Y_{\mathrm{div}} = \Bigl\lfloor Y\cdot\frac{\texttt{dividendCutBps}}{\mathrm{BPS}}\Bigr\rfloor
@@ -114,62 +114,62 @@ A_t \leftarrow A_t + \frac{Y_{\mathrm{div}}\cdot 10^{18}}{\texttt{eligible}}
 \quad(\texttt{eligible}=0 \Rightarrow Y_{\mathrm{div}}\to\text{Treasury})
 $$
 
-Locker claim on \(i\) integrates index growth against unvoted lock. ([§3](#3-distribute), [§4](#4-claim).)
+Locker claim on $i$ integrates index growth against unvoted lock. ([§3](#3-distribute), [§4](#4-claim).)
 
 #### Grinders book (off-chain, per trading pair)
 
-Per pair the same shape as a one-asset slice of \(\mathcal{I}\): quote \(q(t)\), base \(b(t)\), venue spot \(p(t)\). Spot mark of the pair:
+Per pair the same shape as a one-asset slice of $\mathcal{I}$: quote $q(t)$, base $b(t)$, venue spot $p(t)$. Spot mark of the pair:
 
 $$
 v(t) = q(t) + b(t)\cdot p(t)
 $$
 
-Target NAV of the pair (quote units) — a **different** valuation from index \(V(t)\) and from redeem mark \(N_t^{\mathrm{redeem}}\):
+Target NAV of the pair (quote units) — a **different** valuation from index $V(t)$ and from redeem mark $N_t^{\mathrm{redeem}}$:
 
 $$
 N^{\star} = q(t) + b(t)\cdot K_t
 $$
 
-When attainable on base (\(N^{\star} > q(t)\) and \(b(t) > 0\)):
+When attainable on base ($N^{\star} > q(t)$ and $b(t) > 0$):
 
 $$
 K_t = \frac{N^{\star} - q(t)}{b(t)}
 $$
 
-Otherwise \(K_t\) is **undefined** — no free-standing strike object. \(K_t\) is **not** in any contract storage or ABI; it only steers pair allocation when defined. ([§C](#c-grinders-layer).)
+Otherwise $K_t$ is **undefined** — no free-standing strike object. $K_t$ is **not** in any contract storage or ABI; it only steers pair allocation when defined. ([§C](#c-grinders-layer).)
 
-**Dynamics.** The system is dynamic: continuous marks (e.g. \(p_i\)) plus protocol **impulses**
+**Dynamics.** The system is dynamic: continuous marks (e.g. $p_i$) plus protocol **impulses**
 
 $$
 \Delta q,\; \Delta b_i,\; \Delta S,\; \Delta c_i,\; \Delta A
 $$
 
-(deposit / unlock / distribute / claim / redeem / fund, …). \(R\) switches by jump. Not a closed ODE \(\dot x=f(x)\).
+(deposit / unlock / distribute / claim / redeem / fund, …). $R$ switches by jump. Not a closed ODE $\dot x=f(x)$.
 
 | Valuation | Symbol | Layer | What it is |
 | --------- | ------ | ----- | ---------- |
-| Index mark | \(V(t)\) | economic | \(q+\sum_i b_i p_i\) |
-| Redeem mark | \(N_t^{\mathrm{redeem}}\) | contracts | oracle NAV of \(\{r_i\}/S(t)\) |
-| Pair spot mark | \(v(t)\) | Grinders | \(q+b\,p\) at venue spot |
-| Pair target | \(N^{\star}\) | Grinders | target NAV (≠ \(V(t)\)) |
-| Sell mark | \(K_t\) | Grinders only | implied when \(N^{\star}>q\), \(b>0\); else absent |
+| Index mark | $V(t)$ | economic | $q+\sum_i b_i p_i$ |
+| Redeem mark | $N_t^{\mathrm{redeem}}$ | contracts | oracle NAV of $\{r_i\}/S(t)$ |
+| Pair spot mark | $v(t)$ | Grinders | $q+b\,p$ at venue spot |
+| Pair target | $N^{\star}$ | Grinders | target NAV, not equal to $V(t)$ |
+| Sell mark | $K_t$ | Grinders only | implied when $N^{\star} > q$, $b > 0$; else absent |
 
 | Term | Compact |
 | ---- | ------- |
-| Indexed | \(\mathcal{I}(t)=\{q(t)\}\cup\{b_i(t)\}_{i>0}\); \(V(t)=q(t)+\sum_i b_i(t)\,p_i(t)\) |
-| Perpetual | no \(T\); \(R\in\{\texttt{GRINDING},\texttt{REDEMPTION}\}\); exercise iff \(R=\texttt{REDEMPTION}\) |
-| Delivery put | \(\Pi_{\mathrm{put}}(x)=\{x\,r_i/S(t)\}_i\); mark \(N_t^{\mathrm{redeem}}\) — **no \(K\) in payoff** |
-| Strike (off-chain) | \(v=q+b\,p\); \(K=(N^{\star}-q)/b\) when defined; **absent on-chain** |
-| Premium | \(Y_{\mathrm{div}}\) → \(A_t\) → claim |
+| Indexed | $\mathcal{I}(t)=\{q(t)\}\cup\{b_i(t)\}_{i>0}$, $V(t)=q(t)+\sum_i b_i(t) p_i(t)$ |
+| Perpetual | no $T$; $R \in \{\mathrm{GRINDING},\mathrm{REDEMPTION}\}$; exercise iff $R=\mathrm{REDEMPTION}$ |
+| Delivery put | $\Pi_{\mathrm{put}}(x)=\{x r_i / S(t)\}_i$; mark $N_t^{\mathrm{redeem}}$; no $K$ in payoff |
+| Strike (off-chain) | $v=q+b p$; $K=(N^{\star}-q)/b$ when defined; absent on-chain |
+| Premium | $Y_{\mathrm{div}}$ to $A_t$ to claim |
 
 ### Caveats for economists
 
 This is an **analogy**, not a listed exchange put:
 
-- **Not Black–Scholes.** No on-chain \(K\), no implied-vol premium. Valuations above are distinct; do not equate \(K_t\) with exercise price of \(\Pi_{\mathrm{put}}\).
+- **Not Black–Scholes.** No on-chain $K$, no implied-vol premium. Valuations above are distinct; do not equate $K_t$ with exercise price of $\Pi_{\mathrm{put}}$.
 - **Premium ≠ option premium.** Holder “premium” is realized Grinders yield (`distribute` → `claim`), not a prepaid BS price of volatility.
-- **Exercise is gated.** Not continuously American: redeem only after 2-of-2 liquidation (\(R=\texttt{REDEMPTION}\) + delay). Vote / bribe / unlock fee are governance / secondary-market around that gate (§§5–6, §2).
-- **Mint** \(\texttt{priceBps}\) (§1) is share dilution, not part of Indexed and not a strike.
+- **Exercise is gated.** Not continuously American: redeem only after 2-of-2 liquidation ($R=\texttt{REDEMPTION}$ + delay). Vote / bribe / unlock fee are governance / secondary-market around that gate (§§5–6, §2).
+- **Mint** $\texttt{priceBps}$ (§1) is share dilution, not part of Indexed and not a strike.
 
 ### Mapping to mechanics
 
