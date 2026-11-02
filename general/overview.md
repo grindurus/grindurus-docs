@@ -125,6 +125,8 @@ Map: [protocol.svg](../protocol/protocol.svg) · [protocol.png](../protocol/prot
 
 When profit is distributed: **~50%** dividends to all lockers (voted included), **~50%** treasury. On claim, treasury inventory pays affiliates (~5% of yield L1/L2) and the rest to **beneficiar**.
 
+The app’s **Indicative APR** band (`5% – 83%`) is a modeled forward range (not the on-chain split above). Full write-up: [Indicative APR](indicative_apr.md).
+
 ```mermaid
 ---
 config:
@@ -150,6 +152,7 @@ Affiliates,L2,1
 | Want | Go |
 | ---- | -- |
 | Beliefs and positioning | [Manifesto](manifesto.md) |
+| Indicative APR band | [Indicative APR](indicative_apr.md) |
 | Module map | [Protocol overview](../protocol/overview.md) |
 | Share token & payouts | [GRAI overview](../protocol/grai/overview.md) |
 | Custody & heartbeat | [Grinders overview](../protocol/grinders/overview.md) |

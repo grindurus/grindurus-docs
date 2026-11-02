@@ -6,6 +6,7 @@
 
 * [Manifesto](general/manifesto.md)
 * [Overview](general/overview.md)
+* [Indicative APR](general/indicative_apr.md)
 
 ## Protocol
 
