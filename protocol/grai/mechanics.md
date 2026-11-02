@@ -19,9 +19,9 @@ Economically, GRAI is an **indexed perpetual delivery put option** with a **dyna
 Capital sits in **Grinders**; GRAI is the share ledger and cashflow harness (mint, lock, vote, dividends, liquidation redeem). §§1–9 below are that harness.
 
 ```
-holder  →  lock()  →  locker (unvoted)  →  vote()  →  voter  ←  bribe()  ←  briber
-                      earn dividends           no dividends on voted
-                      (locked − voted)         quorum / bribe market
+holder  →  lock()  →  locker  →  vote()  →  voter  ←  bribe()  ←  briber
+                      earn dividends on full lock
+                      (voted still earns; bribe shrinks locked)
 ```
 
 ### Formal model
@@ -108,13 +108,13 @@ Y_{\mathrm{treas}} = Y - Y_{\mathrm{div}}
 $$
 
 $$
-\texttt{eligible} = L_t - W_t
+\texttt{eligible} = L_t
 ,\qquad
 A_t \leftarrow A_t + \frac{Y_{\mathrm{div}}\cdot 10^{18}}{\texttt{eligible}}
 \quad(\texttt{eligible}=0 \Rightarrow Y_{\mathrm{div}}\to\text{Treasury})
 $$
 
-Locker claim on $$i$$ integrates index growth against unvoted lock. ([§3](#3-distribute), [§4](#4-claim).)
+Locker claim on $$i$$ integrates index growth against the full lock $$L$$ (voted GRAI still earns). ([§3](#3-distribute), [§4](#4-claim).)
 
 #### Grinders book (off-chain, Strike Price $$K_t$$ Definition)
 
@@ -171,7 +171,7 @@ This is an **analogy**, not a listed exchange put:
 | [2](#2-lock-and-unlock) | Lock and unlock | Park for yield / vote; flat fee on unlock → Grinders | `lock` / `unlock` |
 | [3](#3-distribute) | Distribute | Yield split → dividend index + Treasury | `distribute` |
 | [4](#4-claim) | Claim | Pull accrued assets; bump referral books | `claim` / `claimAll` |
-| [5](#5-vote) | Vote | Quorum limb; leaves dividend base | `vote` / `hasQuorum` |
+| [5](#5-vote) | Vote | Quorum limb; dividends stay on full lock | `vote` / `hasQuorum` |
 | [6](#6-bribe) | Bribe | Buy voted GRAI with `bribeable` asset | `bribe` / `previewBribe` |
 | [7](#7-treasury-and-affiliates) | Treasury and affiliates | Fee sink; L1/L2 pay on claim | `Treasury.mint` / `distribute` |
 | [8](#8-poach) | Poach | Buy upline seat for GRAI | `poach` / `previewPoach` |
@@ -179,9 +179,9 @@ This is an **analogy**, not a listed exchange put:
 
 **Core rules**
 
-- Dividends go only to GRAI that is **locked and not voted**.
-- `vote` stops earning on that amount — someone can buy it with `bribe`.
-- If nobody is eligible, the dividend cut goes to **Treasury**.
+- Dividends go to **all locked** GRAI (`totalLocked`) — **voted still earns**.
+- `vote` adds quorum weight only; `bribe` buys voted GRAI and **shrinks** the voter’s lock (future dividend share).
+- If nobody is locked (or index dust), the dividend cut goes to **Treasury**.
 - Affiliates do **not** skim the locker payout; they are paid from Treasury on `claim`.
 - While **GRINDING** there is no live redeem: sell free GRAI, unlock, bribe, or wait for liquidation.
 
@@ -190,11 +190,11 @@ This is an **analogy**, not a listed exchange put:
 | Participant | Incentive |
 | ----------- | --------- |
 | **Depositor** | Mint GRAI at book (early depositors avoid the mint premium) |
-| **Locker** | Earn asset dividends on unvoted lock (premium for volatility) |
+| **Locker** | Earn asset dividends on full lock (premium for volatility) |
 | **Referrer (affiliate)** | Share of treasury cut when downline claims |
 | **Poacher** | Own the upline seat → affiliate fees on claims |
-| **Voter** | Push toward liquidation; exit via bribe / unlock |
-| **Briber** | Buy GRAI; reduce liquidation risk |
+| **Voter** | Push toward liquidation while still earning; exit via bribe / unlock |
+| **Briber** | Buy GRAI; reduce liquidation risk; shrink voter’s future dividend share |
 | **Claim tip caller** | `claimTipBps` of claimed (default 1%) |
 | **Grinders / toreador** | Trade capital; push yield; keep heartbeat alive |
 | **Treasury / beneficiar** | Protocol / unpaid affiliate slice |
@@ -277,7 +277,7 @@ graiOut = 100e6 × 1_000_000e6 / 1_234_567.8e6 ≈ 81.000006 GRAI
 
 ## 2. Lock and unlock
 
-`lock` parks GRAI in escrow. `unlock` returns it minus a flat fee (default **1%**) to Grinders. Free wallet GRAI earns nothing and does not vote. Locked GRAI earns only while **unvoted**.
+`lock` parks GRAI in escrow. `unlock` returns it minus a flat fee (default **1%**) to Grinders. Free wallet GRAI earns nothing and does not vote. **All locked GRAI earns dividends** — voting does not forfeit that share; voted GRAI also counts toward quorum / bribe.
 
 ### EVM
 
@@ -293,10 +293,10 @@ Blocked in liquidation. Claims are **not** inside unlock — call `claim` separa
 ### Flow
 
 ```
-Wallet GRAI ──lock──► Escrow
+Wallet GRAI ──lock──► Escrow ──► dividends on full lock
                         │
            ┌────────────┴────────────┐
-           │ unvoted → dividends     │ voted → quorum / bribe
+           │ unvoted                 │ voted → also quorum / bribe
            └────────────┬────────────┘
                         │
 Wallet ◄──unlock (−fee)─┘
@@ -308,7 +308,7 @@ Wallet ◄──unlock (−fee)─┘
 | ---- | ----- | ---------- | ------- |
 | Free | Wallet | No | No |
 | Locked, unvoted | Escrow | **Yes** | No |
-| Locked + voted | Escrow | No | **Yes** |
+| Locked + voted | Escrow | **Yes** | **Yes** |
 
 ### Formulas
 
@@ -326,7 +326,7 @@ Accidental GRAI on the GRAI contract (`balanceOf(GRAI) − totalLocked`) is not 
 
 ## 3. Distribute
 
-When Grinders push profit, anyone calls `distribute`. Yield splits (default **50/50**): half indexed for unvoted lockers, half to Treasury. Distribute does **not** pay wallets — it only records who is owed what.
+When Grinders push profit, anyone calls `distribute`. Yield splits (default **50/50**): half indexed for **all locked** GRAI (voted included), half to Treasury. Distribute does **not** pay wallets — it only records who is owed what.
 
 ### EVM
 
@@ -355,13 +355,13 @@ received     = tokens pulled to GRAI
 dividendCut  = received × dividendCutBps / BPS     // floor first
 treasuryCut  = received − dividendCut              // remainder → treasury
 
-eligible     = totalLocked − totalVoted
+eligible     = totalLocked                         // voted GRAI still earns
 accShare    += dividendCut × 1e18 / eligible       // or treasury if eligible == 0
 totalClaimable += floor(eligible × accShare / 1e18) − previous
 ```
 
-| Cut | Unvoted locks exist | `totalLocked == totalVoted` / dust |
-| --- | ------------------- | ---------------------------------- |
+| Cut | Locks exist (`totalLocked > 0`) | No locks / dust |
+| --- | ------------------------------- | --------------- |
 | Treasury | → `treasury` | → `treasury` |
 | Dividend | → `accShare` + `totalClaimable` | → `treasury` |
 
@@ -369,7 +369,7 @@ New lockers sync debt to the **current** index — they do not receive past cuts
 
 ### Example
 
-Alice locks 100, votes 40 → unvoted **60**. Bob locks 100 unvoted. Eligible **160**. Dividend cut **50 USDC** → Alice **18.75**, Bob **31.25**.
+Alice locks 100, votes 40 (still earns on **100**). Bob locks 100 unvoted. Eligible **200**. Dividend cut **50 USDC** → Alice **25**, Bob **25**.
 
 ---
 
@@ -415,7 +415,7 @@ accShare ──claim──► assets to locker (− tip)
 ### Formulas
 
 ```
-claimable    = (locked − voted) × accShare / 1e18 − debt
+claimable    = locked × accShare / 1e18 − debt     // full lock; voted still earns
 paid         = min(amount, claimable, balance, totalClaimable)
 tip          = paid × claimTipBps / BPS          // default 1% → msg.sender
 claimedValue = usdValue(asset, paid)             // grows locker + L1/L2 books
@@ -425,11 +425,12 @@ Each successful claim permanently raises the locker (and upline) **poach ask**. 
 
 ### Example
 
-Alice & Bob each 100 locked unvoted. Dividend cut **30 USDC** → **15** each.
+Alice & Bob each 100 locked. Dividend cut **30 USDC** → **15** each.
 
 1. `claim(alice, USDC, max)` → Alice **15**; Bob still **15** unclaimed.
-2. Alice `vote`s 40 → eligible base **160** (Alice 60 + Bob 100).
-3. Second cut **30** → Alice **11.25**, Bob **18.75** (Bob claimable **33.75** if never claimed).
+2. Alice `vote`s 40 → eligible base still **200** (Alice 100 + Bob 100); vote does not shrink her share.
+3. Second cut **30** → Alice **15**, Bob **15** again (Bob claimable **30** if never claimed).
+4. Briber buys **50** of Alice’s vote → Alice `locked` **50**, Bob **100** → next cut splits ~1∶2.
 
 Affiliate sizing on claim: see [§7](#7-treasury-and-affiliates).
 
@@ -437,7 +438,7 @@ Affiliate sizing on claim: see [§7](#7-treasury-and-affiliates).
 
 ## 5. Vote
 
-`vote` marks locked GRAI toward liquidation quorum. Shortfall auto-locks from wallet. Voted GRAI leaves the dividend pool. You pay with yield so shutdown is not free.
+`vote` marks locked GRAI toward liquidation quorum. Shortfall auto-locks from wallet. Voted GRAI **keeps earning** on the full `locked` — voting only adds quorum weight. Exit via `bribe` (shrinks lock) or `unlock` (fee).
 
 ### EVM
 
@@ -455,7 +456,7 @@ Supply ████████████████████████ 
 Voted  ████████████████░░░░░░░░  need > quorumBps (~66.67%)
               ▲
          vote adds here
-         and removes that slice from dividends
+         (dividends stay on full lock)
 ```
 
 ```mermaid
@@ -465,7 +466,7 @@ sequenceDiagram
 
     V->>G: vote graiAmount
     Note over V,G: lock shortfall if voted plus amount exceeds locked
-    Note over V,G: eligible equals locked minus voted shrinks
+    Note over V,G: dividend base stays locked; vote does not shrink it
 ```
 
 ### Formulas
@@ -476,6 +477,7 @@ if voted + graiAmount > locked:
 voted      += graiAmount
 totalVoted += graiAmount
 hasQuorum  = totalVoted × BPS / supply > quorumBps   // strict; equality fails
+// eligible for dividends remains locked (and totalLocked), not locked − voted
 ```
 
 New deposits grow supply and dilute progress until people re-vote.
@@ -485,13 +487,13 @@ New deposits grow supply and dilute progress until people re-vote.
 Supply **1,000**. Alice locked **100**, `voted = 0`.
 
 1. `vote(40)` — no wallet shortfall.
-2. After: `locked = 100`, `voted = 40`, eligibility **60**, `totalVoted / supply = 4%`. Quorum not met.
+2. After: `locked = 100`, `voted = 40`, dividend base still **100**, `totalVoted / supply = 4%`. Quorum not met.
 
 ---
 
 ## 6. Bribe
 
-Anyone buys **voted** GRAI with a listed `bribeable` asset (non-FoT). Buyer gets full GRAI to wallet. Blocked while liquidation is open. Self-bribe allowed (exit votes without unlock fee).
+Anyone buys **voted** GRAI with a listed `bribeable` asset (non-FoT). Buyer gets full GRAI to wallet; voter’s `locked` and `voted` both shrink (pre-bribe claimable is kept; future dividend share falls). Blocked while liquidation is open. Self-bribe allowed (exit votes without unlock fee).
 
 ### EVM
 
@@ -529,7 +531,7 @@ bribeAmount = book adjusted by vote share vs half-quorum
               (discount: only half the gap off the ask)
 ```
 
-Cuts use the same 50/50 dividend / treasury split as `distribute`. Briber must later `lock` to earn dividends.
+Cuts use the same 50/50 dividend / treasury split as `distribute` (index on `totalLocked`). Briber must later `lock` to earn dividends.
 
 ### Examples
 
@@ -820,7 +822,7 @@ Every priced path reads `feeds[asset]`: deposit, bribe, claim, `previewDeposit`.
 
 | Parameter | `ConfigId` | Default | Meaning |
 | --------- | ---------- | ------- | ------- |
-| `dividendCutBps` | initialize only | 50% | → unvoted lockers (or treasury) |
+| `dividendCutBps` | initialize only | 50% | → all lockers / full lock (or treasury) |
 | `treasuryCutBps` | initialize only | 50% | → treasury |
 | `revenueShareBps` | `REVENUE_SHARE` | 5% | Affiliates on claim |
 | `claimTipBps` | `CLAIM_TIP` | 1% | → `msg.sender` of claim |
@@ -853,8 +855,9 @@ Every priced path reads `feeds[asset]`: deposit, bribe, claim, `previewDeposit`.
 Roles ladder:
 
 ```
-holder → lock → locker (unvoted) → vote → voter ← bribe ← briber
-                 earn dividends           no dividends on voted
+holder → lock → locker → vote → voter ← bribe ← briber
+                 earn on full lock        voted still earns;
+                                          bribe shrinks locked
 ```
 
 ---
@@ -890,9 +893,9 @@ Treasury: `mint` / `rebind` / `distribute` = GRAI only; payout knobs = GRAI owne
 ## E. Key invariants
 
 1. **Book** — `totalValue` moves on deposit (full `value`) and redeem burn — not on yield or `revive`.
-2. **Dividends = unvoted lock** — `totalLocked − totalVoted`.
+2. **Dividends = full lock** — `totalLocked` (voted GRAI still earns); bribe shrinks future share.
 3. **Past dividends not diluted** — new locks sync debt to live index.
-4. **No eligible locks → dividend cut to treasury**.
+4. **No locks / dust → dividend cut to treasury**.
 5. **Mint premium only reduces shares** — book always gains full `value`.
 6. **Quorum uses live supply** — deposits dilute.
 7. **Liquidation 2-of-2** — `hasQuorum()` and `!grinders.grinding()`.

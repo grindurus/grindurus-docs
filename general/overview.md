@@ -117,13 +117,13 @@ Map: [protocol.svg](../protocol/protocol.svg) · [protocol.png](../protocol/prot
 ### Typical investor path
 
 1. Deposit a listed asset into **GRAI** → mint at book.
-2. Optionally **lock** (unvoted) to earn dividends.
+2. Optionally **lock** to earn dividends (voted GRAI still earns).
 3. Custodians trade; toreador **`distribute`**s profit on-chain.
 4. **Claim** asset dividends — or exit via market / unlock / liquidation redeem.
 
 ### Yield at a glance (defaults)
 
-When profit is distributed: **~50%** dividends to unvoted lockers, **~50%** treasury. On claim, treasury inventory pays affiliates (~5% of yield L1/L2) and the rest to **beneficiar**.
+When profit is distributed: **~50%** dividends to all lockers (voted included), **~50%** treasury. On claim, treasury inventory pays affiliates (~5% of yield L1/L2) and the rest to **beneficiar**.
 
 ```mermaid
 ---

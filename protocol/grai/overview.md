@@ -2,7 +2,7 @@
 
 **GRAI** (*Grinders Artificial Index*) is the on-chain fund share — an ERC20 priced in USD (6 decimals).
 
-You deposit listed assets, get GRAI, lock for yield or vote for shutdown, claim dividends, and exit via sell, bribe, or liquidation → redeem. Trading the basket is off-chain **Grinders**; this contract is the share ledger and cashflow harness. Economically it is an indexed perpetual delivery put with a live strike and a premium for volatility risk (§0). The rest of this page is how that works on-chain (§1–§9).
+You deposit listed assets, get GRAI, lock for yield (voted still earns), optionally vote for shutdown, claim dividends, and exit via sell, bribe, or liquidation → redeem. Trading the basket is off-chain **Grinders**; this contract is the share ledger and cashflow harness. Economically it is an indexed perpetual delivery put with a live strike and a premium for volatility risk (§0). The rest of this page is how that works on-chain (§1–§9).
 
 | Chain | Contract / program |
 | ----- | ------------------- |
@@ -53,13 +53,13 @@ On the same call you can lock the new GRAI and bind a referrer once.
 
 ## 2. Lock and unlock
 
-`lock` parks GRAI in escrow. `unlock` returns it to your wallet minus a flat fee (default **1%**) to Grinders. Free GRAI in a wallet earns nothing and does not vote. Locked GRAI can earn dividends (if not voted) or count toward liquidation (if voted). The fee makes unlock slightly sticky.
+`lock` parks GRAI in escrow. `unlock` returns it to your wallet minus a flat fee (default **1%**) to Grinders. Free GRAI in a wallet earns nothing and does not vote. **All locked GRAI earns dividends** — voting does not forfeit that share. Voted GRAI also counts toward liquidation quorum. The fee makes unlock slightly sticky.
 
 ```
-Wallet GRAI ──lock──► Escrow (locked)
+Wallet GRAI ──lock──► Escrow (locked) ──► dividends on full lock
                            │
               ┌────────────┴────────────┐
-              │ unvoted → can earn      │ voted → quorum only
+              │ unvoted                 │ voted → also quorum / bribe
               └────────────┬────────────┘
                            │
 Wallet ◄──unlock (−1%)─────┘
@@ -71,13 +71,13 @@ Wallet ◄──unlock (−1%)─────┘
 | --------- | ---------- | ---------------------- |
 | In wallet (free) | No | No |
 | Locked, not voted | **Yes** | No |
-| Locked + voted | No | **Yes** |
+| Locked + voted | **Yes** | **Yes** |
 
 ---
 
 ## 3. Distribute
 
-When Grinders push profit, anyone calls `distribute`. Yield splits 50/50 by default: half indexed for lockers, half to Treasury. Only locked, unvoted GRAI shares the dividend cut. If nobody is eligible (or the cut is dust), that half goes to Treasury too. Distribute does not send assets to wallets — it only records who is owed what.
+When Grinders push profit, anyone calls `distribute`. Yield splits 50/50 by default: half indexed for **all locked** GRAI (voted included), half to Treasury. If nobody is locked (or the cut is dust), that half goes to Treasury too. Distribute does not send assets to wallets — it only records who is owed what.
 
 ```mermaid
 ---
@@ -110,21 +110,21 @@ accShare on GRAI ──claim(asset)──► assets to locker
 
 ## 5. Vote
 
-`vote` marks locked GRAI as “I want liquidation on the table.” Missing amount is auto-locked from your wallet. Voted GRAI leaves the dividend pool. Votes need more than ~⅔ of supply. You pay with yield so shutdown is not free. New deposits grow supply and dilute progress.
+`vote` marks locked GRAI as “I want liquidation on the table.” Missing amount is auto-locked from your wallet. Voted GRAI **keeps earning dividends** on the full lock — voting only adds quorum weight. Votes need more than ~⅔ of supply. New deposits grow supply and dilute progress. Exit votes via `bribe` (shrinks lock / future dividend share) or `unlock` (fee).
 
 ```
 Supply ████████████████████████  100%
 Voted  ████████████████░░░░░░░░  need > ~66.7%
               ▲
          your vote adds here
-         and removes you from dividends
+         (dividends stay on full lock)
 ```
 
 ---
 
 ## 6. Bribe
 
-`bribe` lets anyone buy voted GRAI from a voter with a listed `bribeable` asset. The buyer gets full GRAI in wallet. Blocked while liquidation is open. Self-bribe is allowed if you want out of votes without the unlock fee. Price goes up when votes are scarce and down when the quorum pile is already huge. Bribes peel votes without waiting for unlock.
+`bribe` lets anyone buy voted GRAI from a voter with a listed `bribeable` asset. The buyer gets full GRAI in wallet; the voter’s `locked` (and future dividend share) shrinks by the same amount. Blocked while liquidation is open. Self-bribe is allowed if you want out of votes without the unlock fee. Price goes up when votes are scarce and down when the quorum pile is already huge. Bribes peel votes without waiting for unlock.
 
 ```
 Voter (voted GRAI) ◄──bribe(asset)── Briber
